@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "build/dist",
+    "module": "esnext",
+    "target": "es6",
+    "lib": ["es6", "dom"],
+    "sourceMap": true,
+    "allowJs": true,
+    "jsx": "react",
+    "moduleResolution": "node",
+    "rootDir": "src",
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "paths": {
+      "Assets/*": ["src/assets/*"],
+      "Common/*": ["src/common/*"],
+      "Components/*": ["src/components/*"],
+      "App/*": ["src/app/*"],
+      "HOC/*": ["src/hoc/*"],
+      "Actions/*": ["src/redux-store/actions/*"],
+      "Reducers/*": ["src/redux-store/reducers/*"],
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "build",
+    "scripts",
+    "acceptance-tests",
+    "webpack",
+    "jest",
+    "src/setupTests.ts",
+    "config-overrides.js"
+  ]
+}
