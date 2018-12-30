@@ -35,11 +35,11 @@ export const DEFAULT_DAYS_NAMES: [
     string,
     string
 ] = [
+    'sunday',
     'monday',
     'tuesday',
     'wednesday',
     'thursday',
     'friday',
-    'saturday',
-    'sunday'
+    'saturday'
 ];

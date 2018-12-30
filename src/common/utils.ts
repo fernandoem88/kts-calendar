@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { ACTIONS_STATUS_EVENT_EMITTER } from './constants';
 import { ActionStatusEventEmitterCallback, ActionStatus } from './interfaces';
-import { EventTime } from 'Components/EasyCalendar/interfaces';
+import { EventTime } from 'Components/KTSCalendar/interfaces';
 import moment from 'moment';
 
 const actionStatusEventEmitter = new EventEmitter();

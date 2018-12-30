@@ -33,7 +33,7 @@ export const defaultDayCellCSSForMonthView = css`
     }
     &.${TODAY_CELL} {
         & span.date-value {
-            background: ${COLORS.$cc_green_primary};
+            background: blue;
             color: white;
             border-radius: 50%;
             font-size: 1.1rem;

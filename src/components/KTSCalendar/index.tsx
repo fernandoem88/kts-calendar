@@ -6,7 +6,7 @@ import {
     // IWeekHeaderProps,
 } from './interfaces';
 import moment from 'moment';
-import { KTSCalendarContainer } from './styled';
+import { KTSCalendarContainer, CalendarGridForMonthView } from './styled';
 import { DEFAULT_MONTHS_NAMES, DEFAULT_DAYS_NAMES } from './constants';
 // import { ReactStandarProps } from 'Common/interfaces';
 import { DayCellProps } from 'Components/DefaultDayCell/interfaces';
@@ -39,6 +39,12 @@ export default class KTSCalendar extends React.Component<OwnProps> {
             </KTSCalendarContainer>
         );
     }
+
+    renderCalendar = () => {
+        const { view } = this.props;
+
+        return view === 'month' ? this.renderGridForMonthView() : null;
+    };
 
     /**
      * @description get events related to the month of the date props. this value change on date change
@@ -78,11 +84,6 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         });
     };
 
-    public renderCalendar = () => {
-        // const { view, date } = this.props;
-        return null;
-    };
-
     public renderGridHeader = (
         calendarProps: KTSCalendarProps,
         dayIndex: number,
@@ -94,52 +95,38 @@ export default class KTSCalendar extends React.Component<OwnProps> {
     };
 
     public renderGridForMonthView = () => {
-        const {
-            weeks,
-            startDate: sd,
-            endDate: ed
-        } = this.getMonthViewDateRange();
+        const { weeks, startDate, endDate } = this.getMonthViewDateRange();
         const { date, view } = this.props;
         const today = new Date();
-        const startDate = moment(sd);
-        const endDate = moment(ed);
-        const dates = [];
-        while (startDate.isSameOrBefore(endDate)) {
-            dates.push(startDate.clone());
-            startDate.add({ days: 1 });
-        }
-
+        const dates = this.generateDatesInDateRange(startDate, endDate);
         // const events = this.getSelectedMonthEvents();
-        const events = this.getEventsInRange(sd, ed);
+        const events = this.getEventsInRange(startDate, endDate);
 
         return (
-            <div
+            <CalendarGridForMonthView
                 className="grid-for-monthView calendar-grid"
-                // rows={weeks}
-                // key="calendar-grid"
+                styled={{ rows: weeks }}
+                key="calendar-grid"
                 // data-view={view}
             >
                 {dates.map((cellDate, i) => {
-                    const dayEvents = this.findDayEvents(
-                        events,
-                        cellDate.toDate()
-                    );
+                    const dayEvents = this.findDayEvents(events, cellDate);
                     const weekIndex = parseInt(`${i / 7}` + '', 10);
                     const dayIndex = i % 7;
                     const isInSelectedMonth = dateAreSame(
                         today,
-                        cellDate.toDate(),
+                        cellDate,
                         'YYYYMM'
                     );
                     const isTodayDate = dateAreSame(
                         today,
-                        cellDate.toDate(),
+                        cellDate,
                         'YYYYMMDD'
                     );
 
                     const dayCellProps: DayCellProps = {
                         calendarReferenceDate: date,
-                        cellDate: cellDate.toDate(),
+                        cellDate,
                         dayEvents,
                         dayIndex,
                         isInSelectedMonth,
@@ -151,10 +138,10 @@ export default class KTSCalendar extends React.Component<OwnProps> {
                     };
 
                     console.log(dayCellProps);
-
-                    return null;
+                    const content = moment(cellDate).format('DD - MM - YYYY');
+                    return <div key={i}>{content}</div>;
                 })}
-            </div>
+            </CalendarGridForMonthView>
         );
     };
 
@@ -372,7 +359,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
             minute: 0,
             second: 0
         });
-        const firstDayIndex = firstOfCurrentMonthDate.toDate().getDay(); // 1 to 7
+        const firstDayIndex = firstOfCurrentMonthDate.toDate().getDay() || 7; // 0 to 6
         const startDate = firstOfCurrentMonthDate.clone();
         const firstOfNextMonth = startDate.clone().add({ months: 1 });
 
@@ -382,13 +369,14 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         } else if (weekStartAt === 'sunday' && firstDayIndex !== 7) {
             weekStartDayIndex = 0;
         }
+        console.log('...........pippo....');
         // the diff between the week starting day and the first of month day
         const weekStartDayDiff = firstDayIndex - weekStartDayIndex;
 
         // the calendar month view must starts at monday or sunday
         startDate.subtract({ days: weekStartDayDiff });
 
-        const nextMonthFirstDay = firstOfNextMonth.toDate().getDay();
+        const nextMonthFirstDay = firstOfNextMonth.toDate().getDay() || 7;
 
         // the end of month by default is sunday if the week starts on monday
         const endDate =
@@ -426,5 +414,15 @@ export default class KTSCalendar extends React.Component<OwnProps> {
             endDate: endDate.toDate(),
             weeks: 1
         };
+    };
+
+    private generateDatesInDateRange = (startDate: Date, endDate: Date) => {
+        const startMoment = moment(startDate);
+        const dates = [];
+        while (startMoment.isSameOrBefore(endDate)) {
+            dates.push(startMoment.toDate());
+            startMoment.add({ days: 1 });
+        }
+        return dates;
     };
 }

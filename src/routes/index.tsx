@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import LazyLoader from 'HOC/LazyLoader';
 import { IRouteConf } from './interfaces';
-import AuthWrapper from 'HOC/AuthWrapper';
 
 export const RoutesPathes = {
     agenda: '/agenda',
@@ -53,11 +52,7 @@ const renderRoute = ({
     return (
         <Route
             {...route}
-            component={(props: any) => (
-                <AuthWrapper>
-                    <Comp {...props} />
-                </AuthWrapper>
-            )}
+            component={(props: any) => <Comp {...props} />}
             path={urlPath}
         />
     );

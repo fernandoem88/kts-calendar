@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { TViewType } from 'Components/CalendarToolbar/interfaces';
 import moment from 'moment';
-import { Icon } from 'antd';
+import { ViewType } from 'Components/KTSCalendar/interfaces';
 
 interface INavigationButtonProps {
     onDate: (date: Date) => any;
     type: 'next' | 'previous';
-    view: TViewType;
+    view: ViewType;
     calendarReferenceDate: Date;
     component?: (p: any) => JSX.Element;
 }
@@ -16,9 +15,7 @@ export default (props: INavigationButtonProps) => {
     return C ? (
         <C onClick={() => navigate(props)} />
     ) : (
-        <span onClick={() => navigate(props)}>
-            <Icon type={type === 'next' ? 'right' : 'left'} />
-        </span>
+        <span onClick={() => navigate(props)}>{type}</span>
     );
 };
 const navigate = ({
