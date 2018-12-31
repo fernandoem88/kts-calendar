@@ -5,6 +5,7 @@ import {
     DaysArray
 } from 'Components/KTSCalendar/interfaces';
 import { DayCellsHeaderStyle } from './styled';
+import moment from 'moment';
 
 export type DayCellsHeaderParams = {
     daysNames: DaysArray;
@@ -18,7 +19,8 @@ const DayCellsHeader = (props: DayCellsHeaderParams) => {
     const getDayName = (d: Date) => {
         const index = d.getDay();
         const dayName = daysNames[index];
-        return view === 'day' ? dayName : dayName.substr(0, 3);
+        const date = moment(d).format(' YYYY/MM/DD');
+        return view === 'month' ? dayName : dayName.substr(0, 3) + date;
     };
     if (view === 'day') {
         return (

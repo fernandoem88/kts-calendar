@@ -153,7 +153,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
             const cellEvents = this.findDayEvents(events, cellDate);
             const rowIndex = parseInt(`${index / 7}` + '', 10);
             const columnIndex = index % 7;
-            const isInSelectedMonth = dateAreSame(today, cellDate, 'YYYYMM');
+            const isInSelectedMonth = dateAreSame(date, cellDate, 'YYYYMM');
             const isTodayDate = dateAreSame(today, cellDate, 'YYYYMMDD');
 
             const dayCellProps: DayCellProps = {

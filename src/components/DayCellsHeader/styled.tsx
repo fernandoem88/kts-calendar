@@ -8,7 +8,13 @@ export const DayCellsHeaderStyle = styled.div`
         `repeat(${React.Children.count(props.children)}, 1fr)`};
     height: 3.2rem;
     line-height: 3.2rem;
+    border: solid 1px #cccccc;
+    border-bottom: none;
     & > * {
-        padding: 0 0.8rem;
+        padding: 0 0.4rem;
+        text-transform: capitalize;
+        &:not(:first-child) {
+            border-left: solid 1px #cccccc;
+        }
     }
 `;

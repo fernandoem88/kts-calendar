@@ -22,7 +22,10 @@ const EventsWrapperForMonthView: EventsWrapperRenderer = wrapperProps => {
         rowIndex,
         weeks
     }: EventsWrapperRendererParams = wrapperProps;
-    const classes: string[] = [];
+    const classes: string[] = [DayCellClasses.DAY_CELL];
+    if (dateAreSame(cellDate, calendarReferenceDate, 'YYYYMMDD')) {
+        classes.push(DayCellClasses.CALENDAR_REFERENCE_DAY);
+    }
     if (rowIndex === 0) {
         classes.push(DayCellClasses.IN_FIRST_WEEK);
     }
