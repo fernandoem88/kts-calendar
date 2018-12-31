@@ -1,15 +1,9 @@
 import * as React from 'react';
-import {
-    KTSCalendarProps
-    // CalendarEvent,
-    // EventTime
-    // IWeekHeaderProps,
-} from './interfaces';
+import { DayCellProps, KTSCalendarProps, EventRenderer } from './interfaces';
 import moment from 'moment';
 import { KTSCalendarContainer, CalendarGridForMonthView } from './styled';
 import { DEFAULT_MONTHS_NAMES, DEFAULT_DAYS_NAMES } from './constants';
 // import { ReactStandarProps } from 'Common/interfaces';
-import { DayCellProps } from 'Components/DefaultDayCell/interfaces';
 import {
     // DEFAULT_DATE_FORMAT,
     DEFAULT_DAY_HOURS_RANGE_END,
@@ -17,6 +11,10 @@ import {
     // DEFAULT_TIME_IN_ONE_BLOCK
 } from 'Common/constants';
 import { dateAreSame } from 'Common/utils';
+import DayCellForMonthView from 'Components/DayCellForMonthView';
+import DayCellsHeader, {
+    DayCellsHeaderParams
+} from 'Components/DayCellsHeader';
 
 // const BLOCKS_IN_ONE_HOUR = 60 / DEFAULT_TIME_IN_ONE_BLOCK;
 type OwnProps = KTSCalendarProps;
@@ -35,6 +33,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
     render() {
         return (
             <KTSCalendarContainer className="kts-calendar">
+                {this.renderGridHeader()}
                 {this.renderCalendar()}
             </KTSCalendarContainer>
         );
@@ -84,64 +83,100 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         });
     };
 
-    public renderGridHeader = (
-        calendarProps: KTSCalendarProps,
-        dayIndex: number,
-        dayDate: Date
-    ) => {
-        // const { daysNames } = props;
-        // const headerDayClass = 'header-day-name';
-        return null;
+    public renderGridHeader = () => {
+        const {
+            date,
+            daysNames = DEFAULT_DAYS_NAMES,
+            navigation,
+            view
+        } = this.props;
+
+        const { startDate } =
+            view === 'month'
+                ? this.getMonthViewDateRange()
+                : this.getWeekViewDateRange();
+
+        const weekDates = this.generateDatesInDateRange(
+            startDate,
+            moment(startDate)
+                .add({ days: 6 })
+                .toDate()
+        );
+
+        const params: DayCellsHeaderParams = {
+            view,
+            weekDates,
+            cellDate: view === 'day' ? date : undefined,
+            navigation,
+            daysNames
+        };
+        return <DayCellsHeader {...params} />;
     };
 
     public renderGridForMonthView = () => {
         const { weeks, startDate, endDate } = this.getMonthViewDateRange();
-        const { date, view } = this.props;
-        const today = new Date();
         const dates = this.generateDatesInDateRange(startDate, endDate);
-        // const events = this.getSelectedMonthEvents();
-        const events = this.getEventsInRange(startDate, endDate);
-
+        const dayCellPropsgenerator = this.dayCellPropsGenerator();
         return (
             <CalendarGridForMonthView
                 className="grid-for-monthView calendar-grid"
                 styled={{ rows: weeks }}
                 key="calendar-grid"
-                // data-view={view}
             >
                 {dates.map((cellDate, i) => {
-                    const dayEvents = this.findDayEvents(events, cellDate);
-                    const weekIndex = parseInt(`${i / 7}` + '', 10);
-                    const dayIndex = i % 7;
-                    const isInSelectedMonth = dateAreSame(
-                        today,
-                        cellDate,
-                        'YYYYMM'
+                    const dayCellProps = dayCellPropsgenerator(cellDate);
+                    return (
+                        <DayCellForMonthView
+                            key={cellDate.getTime()}
+                            {...dayCellProps}
+                        />
                     );
-                    const isTodayDate = dateAreSame(
-                        today,
-                        cellDate,
-                        'YYYYMMDD'
-                    );
-
-                    const dayCellProps: DayCellProps = {
-                        calendarReferenceDate: date,
-                        cellDate,
-                        dayEvents,
-                        dayIndex,
-                        isInSelectedMonth,
-                        isTodayDate,
-                        view,
-                        weekIndex,
-                        weeks,
-                        navigation: this.props.navigation
-                    };
-
-                    console.log(dayCellProps);
-                    const content = moment(cellDate).format('DD - MM - YYYY');
-                    return <div key={i}>{content}</div>;
                 })}
             </CalendarGridForMonthView>
+        );
+    };
+
+    public dayCellPropsGenerator = () => {
+        const { weeks, startDate, endDate } = this.getMonthViewDateRange();
+        const { components, date, view } = this.props;
+        const today = new Date();
+        const dates = this.generateDatesInDateRange(startDate, endDate);
+        const events = this.getEventsInRange(startDate, endDate);
+        const renderEvent: EventRenderer =
+            components && components.renderEvent
+                ? components.renderEvent
+                : this.renderEvent;
+        return (cellDate: Date) => {
+            const index = dates.findIndex(d =>
+                dateAreSame(d, cellDate, 'YYYYMMDD')
+            );
+            const cellEvents = this.findDayEvents(events, cellDate);
+            const rowIndex = parseInt(`${index / 7}` + '', 10);
+            const columnIndex = index % 7;
+            const isInSelectedMonth = dateAreSame(today, cellDate, 'YYYYMM');
+            const isTodayDate = dateAreSame(today, cellDate, 'YYYYMMDD');
+
+            const dayCellProps: DayCellProps = {
+                calendarReferenceDate: date,
+                cellDate,
+                cellEvents,
+                renderEvent,
+                columnIndex,
+                isInSelectedMonth,
+                isTodayDate,
+                navigation: this.props.navigation,
+                rowIndex,
+                view,
+                weeks
+            };
+            return dayCellProps;
+        };
+    };
+
+    renderEvent: EventRenderer = cellParams => {
+        const { event } = cellParams;
+        return (
+            <div key={event.date.getTime() + event.title}>{event.title}</div>
         );
     };
 
@@ -335,7 +370,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         //         return c.toDate();
         //     });
 
-        return null;
+        return 'week';
     };
 
     public findDayEvents = (events: OwnProps['events'], d: Date) => {
@@ -369,7 +404,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         } else if (weekStartAt === 'sunday' && firstDayIndex !== 7) {
             weekStartDayIndex = 0;
         }
-        console.log('...........pippo....');
+
         // the diff between the week starting day and the first of month day
         const weekStartDayDiff = firstDayIndex - weekStartDayIndex;
 
@@ -397,21 +432,20 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         };
     };
 
-    public getWeekViewDateRange = (date: Date) => {
-        const now = moment(date);
-        // start is monday
-        const startDate = now.set({ day: 1, hour: 0, minute: 0, second: 0 });
-        // end is sunday
-        const endDate = now.clone().add({ days: 7 });
+    public getWeekViewDateRange = () => {
+        const { date } = this.props;
+        const { startDate } = this.getMonthViewDateRange();
+        const mmtStart = moment(startDate);
+        const mmtEnd = mmtStart.clone().add({ days: 6 });
 
-        if (this.props.weekStartAt === 'sunday') {
-            startDate.subtract({ days: 1 });
-            endDate.subtract({ days: 1 });
+        while (mmtEnd.isBefore(date)) {
+            mmtStart.add({ weeks: 1 });
+            mmtEnd.add({ weeks: 1 });
         }
 
         return {
-            startDate: startDate.toDate(),
-            endDate: endDate.toDate(),
+            startDate: mmtStart.toDate(),
+            endDate: mmtEnd.toDate(),
             weeks: 1
         };
     };

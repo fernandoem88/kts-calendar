@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 // import { Provider } from 'react-redux';
 // import { combinedReducers } from 'Reducers/combined-reducers';
-import './index.less';
+import './index.css';
 import AppCalendar from 'App/AppCalendar';
 // import { IStoreSignature } from 'Reducers/interfaces';
 

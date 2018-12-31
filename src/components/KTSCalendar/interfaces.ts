@@ -94,6 +94,14 @@ export interface CalendarEvent {
     eventCategoryId?: string;
 }
 
+export interface DayCellProps<
+    E extends CalendarEvent = CalendarEvent,
+    V = ViewType
+> extends EventsWrapperRendererParams<E, V> {
+    renderEvent: EventRenderer<E, V>;
+    renderEventWrapper?: EventsWrapperRenderer<E, V>;
+}
+
 export interface EventCategory {
     id: string;
     color: string;
@@ -115,6 +123,46 @@ export interface EventNavigation<V = ViewType> {
     onView?: (newView: V) => any;
 }
 
+export type EventRenderer<
+    E extends CalendarEvent = CalendarEvent,
+    V = ViewType
+> = (data: EventRendererParams<E, V>) => JSX.Element | string | null;
+
+export interface EventRendererParams<
+    E extends CalendarEvent = CalendarEvent,
+    V = ViewType
+> {
+    calendarReferenceDate: Date;
+    cellEvents: E[];
+    event: E;
+    navigation?: EventNavigation<V>;
+    view: V;
+}
+export type EventsWrapperRenderer<
+    E extends CalendarEvent = CalendarEvent,
+    V = ViewType
+> = (
+    params: EventsWrapperRendererParams<E, V>
+) => React.FunctionComponent | React.ComponentClass;
+export interface EventsWrapperRendererParams<
+    E extends CalendarEvent = CalendarEvent,
+    V = ViewType
+> {
+    columnIndex: number;
+    calendarReferenceDate: Date;
+    cellDate: Date;
+    cellEvents: E[];
+    isInSelectedMonth: boolean;
+    isTodayDate: boolean;
+    rowIndex: number;
+    view: V;
+    weeks: number;
+    navigation?: {
+        onView?: (view: V) => any;
+        onDate?: (refDate: Date) => any;
+    };
+    onDayEventClick?: (mouseEvent: React.MouseEvent, dayEvent: E) => any;
+}
 export interface KTSCalendarProps<
     E extends CalendarEvent = CalendarEvent,
     V = ViewType
@@ -132,25 +180,8 @@ export interface KTSCalendarProps<
         /**
          * @description the render of a single event. use it if you want the wrapper to be the default one
          */
-        renderEvent?: (
-            data: {
-                event: E;
-                date: Date;
-                view: V;
-                dayEvents: E[];
-                navigation?: EventNavigation;
-                viewProps?: any;
-            }
-        ) => JSX.Element | null | string;
-        renderEventsWrapper?: (
-            data: {
-                date: Date;
-                view: V;
-                dayEvents: E[];
-                navigation?: EventNavigation;
-                viewProps?: any;
-            }
-        ) => JSX.Element | null | string;
+        renderEvent?: EventRenderer;
+        renderEventsWrapper?: EventsWrapperRenderer;
         renderGridHeader?: (
             calendarProps: KTSCalendarProps
         ) => JSX.Element | string | null;
@@ -190,4 +221,25 @@ export interface IGridRowForDayView {
         gridRowGap?: number;
         gridColumnGap?: number;
     };
+}
+
+/**
+ * @constant DAY_CELL the element is a day cell
+ * @constant IN_FIRST_WEEK the element is in the first week of the month
+ * @constant IN_LAST_WEEK the element is in the last week of the month
+ * @constant WEEK_FIRST_DAY the element is starting day (monday or sunday) in the week
+ * @constant WEEK_LAST_DAY the element is last day (sunday or saturday) in the week
+ * @constant IN_SELECTED_MONTH the element is the month of the reference date in the calendar
+ * @constant TODAY_CELL the element date is same as today
+ * @constant CALENDAR_REFERENCE_DAY the element date is same as the calendar reference date
+ */
+export enum DayCellClasses {
+    DAY_CELL = 'day-cell',
+    IN_FIRST_WEEK = 'in-first-week',
+    IN_LAST_WEEK = 'in-last-week',
+    WEEK_FIRST_DAY = 'week-first-day',
+    WEEK_LAST_DAY = 'week-last-day',
+    IN_SELECTED_MONTH = 'in-selected-month',
+    TODAY_CELL = 'today-cell',
+    CALENDAR_REFERENCE_DAY = 'same-as-calendar-reference-date'
 }

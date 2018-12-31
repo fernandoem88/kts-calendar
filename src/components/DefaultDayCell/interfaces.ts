@@ -1,24 +1,3 @@
-import { CalendarEvent, ViewType } from 'Components/KTSCalendar/interfaces';
-
-export interface DayCellProps<
-    E extends CalendarEvent = CalendarEvent,
-    V extends ViewType = ViewType
-> {
-    dayIndex: number;
-    calendarReferenceDate: Date;
-    cellDate: Date;
-    dayEvents: E[];
-    isInSelectedMonth: boolean;
-    isTodayDate: boolean;
-    view: V;
-    weekIndex: number;
-    weeks: number;
-    navigation?: {
-        onView?: (view: V) => any;
-        onDate?: (refDate: Date) => any;
-    };
-    onDayEventClick?: (mouseEvent: React.MouseEvent, dayEvent: E) => any;
-}
 /**
  * @constant DAY_CELL the element is a day cell
  * @constant IN_FIRST_WEEK the element is in the first week of the month
