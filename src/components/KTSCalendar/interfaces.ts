@@ -171,10 +171,11 @@ export interface KTSCalendarProps<
     events: E[];
     date: Date;
     view: V;
+    timeFraction?: 1 | 5 | 10 | 15 | 30;
     // views?: keyof (V);
     daysNames?: DaysArray;
-    dayHoursRangeStart?: number;
-    dayHoursRangeEnd?: number;
+    dayStartHour?: Range24;
+    dayEndHour?: Range24;
     monthsNames?: MonthsArray;
     weekStartAt?: 'monday' | 'sunday';
     components?: {
@@ -217,7 +218,7 @@ export interface IGridRowForDayView {
     styled: {
         totalTimeSlots: number;
         totalColumns: number;
-        totalFractionsInOneHour: number;
+        totalBlocksInOneHour: number;
         view: ViewType;
         gridRowGap?: number;
         gridColumnGap?: number;

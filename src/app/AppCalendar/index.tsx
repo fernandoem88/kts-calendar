@@ -18,15 +18,22 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
             id: '1',
             startTime: { hh: 10, mm: 30 },
             endTime: { hh: 11, mm: 50 },
-            title: 'propva',
+            title: 'propva_sdf_gdffg',
             date: new Date()
         },
         {
             id: '2',
             startTime: { hh: 10, mm: 45 },
             endTime: { hh: 12, mm: 25 },
-            title: 'propva 2',
+            title: 'propva_2_gkmn hhshd',
             date: new Date()
+        },
+        {
+            id: '3',
+            startTime: { hh: 10, mm: 45 },
+            endTime: { hh: 12, mm: 25 },
+            title: 'propva_3_plusdrg',
+            date: new Date('2018/12/31')
         }
     ];
     constructor(props: any) {
@@ -39,7 +46,7 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
     render() {
         const { date, view } = this.state;
         const props: KTSCalendarProps = {
-            weekStartAt: 'monday',
+            weekStartAt: 'sunday',
             events: this.events,
             view,
             date

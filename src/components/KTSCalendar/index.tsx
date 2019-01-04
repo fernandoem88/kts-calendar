@@ -31,15 +31,14 @@ import CalendarHeader, {
 import DayCellWrapperForMonthView from 'Components/DayCellWrapperForMonthView';
 import DayCellForDayView from 'Components/DayCellForDayView';
 
-// const BLOCKS_IN_ONE_HOUR = 60 / DEFAULT_TIME_IN_ONE_BLOCK;
 type OwnProps = KTSCalendarProps;
 type RFC<T = any> = React.FunctionComponent<T>;
 export default class KTSCalendar extends React.Component<OwnProps> {
     static defaultProps: Partial<OwnProps> = {
         daysNames: DEFAULT_DAYS_NAMES,
         monthsNames: DEFAULT_MONTHS_NAMES,
-        dayHoursRangeStart: DEFAULT_DAY_HOURS_RANGE_START,
-        dayHoursRangeEnd: DEFAULT_DAY_HOURS_RANGE_END,
+        dayStartHour: DEFAULT_DAY_HOURS_RANGE_START,
+        dayEndHour: DEFAULT_DAY_HOURS_RANGE_END,
         weekStartAt: 'monday'
     };
     constructor(props: OwnProps) {
@@ -63,18 +62,23 @@ export default class KTSCalendar extends React.Component<OwnProps> {
 
     renderAsideTimesRange = () => {
         const {
-            dayHoursRangeEnd = DEFAULT_DAY_HOURS_RANGE_END,
-            dayHoursRangeStart = DEFAULT_DAY_HOURS_RANGE_START
+            dayEndHour = DEFAULT_DAY_HOURS_RANGE_END,
+            dayStartHour = DEFAULT_DAY_HOURS_RANGE_START
         } = this.props;
-        const totalTimeSlots = dayHoursRangeEnd - dayHoursRangeStart;
+        const totalHours = dayEndHour - dayStartHour;
         return (
             this.props.view !== 'month' && (
-                <AsideTimesRange styled={{ totalTimeSlots }}>
-                    {new Array(totalTimeSlots)
-                        .fill(dayHoursRangeStart)
-                        .map((h, i) => (
-                            <div key={h + i}>{h + i}</div>
-                        ))}
+                <AsideTimesRange styled={{ totalHours: totalHours * 12 }}>
+                    {new Array(totalHours).fill(dayStartHour).map((h, i) => {
+                        const rowStart = i * 12 + 1;
+                        const rowEnd = rowStart + 12;
+                        const gridRow = `${rowStart}/${rowEnd}`;
+                        return (
+                            <div key={h + i} style={{ gridRow }}>
+                                {h + i}
+                            </div>
+                        );
+                    })}
                 </AsideTimesRange>
             )
         );
@@ -166,7 +170,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         const { weeks, startDate, endDate } = this.getMonthViewDateRange();
         const dates = this.generateDatesInDateRange(startDate, endDate);
         const dayCellPropsgenerator = this.dayCellPropsGenerator();
-        const CellWrapper = this.renderDayCellWrapperForMonthView;
+        const CellWrapper = this.renderEventsWrapperForMonthView;
 
         return (
             <CalendarGridForMonthView
@@ -177,16 +181,17 @@ export default class KTSCalendar extends React.Component<OwnProps> {
                 {dates.map((cellDate, i) => {
                     const dayCellProps = dayCellPropsgenerator(cellDate);
                     return (
-                        <CellWrapper key={cellDate.getTime()} {...dayCellProps}>
-                            {[].map(this.renderMonthEvent)}
-                        </CellWrapper>
+                        <CellWrapper
+                            key={cellDate.getTime()}
+                            {...dayCellProps}
+                        />
                     );
                 })}
             </CalendarGridForMonthView>
         );
     };
 
-    renderDayCellWrapperForMonthView: RFC<
+    renderEventsWrapperForMonthView: RFC<
         EventsWrapperRendererParams
     > = params => {
         const { calendarReferenceDate, cellEvents, navigation, view } = params;
@@ -204,7 +209,9 @@ export default class KTSCalendar extends React.Component<OwnProps> {
             components && components.renderEvent
                 ? components.renderEvent
                 : ({ event }: EventRendererParams) => (
-                      <div key={event.date.getTime()}>event</div>
+                      <div key={event.date.getTime() + event.title}>
+                          {event.title}
+                      </div>
                   );
 
         const renderEvents = () =>

@@ -19,13 +19,13 @@ export const MonthCellContainer = styled.div`
         border-bottom: solid 1px #cccccc;
     }
     &.${TODAY_CELL}.${IN_SELECTED_MONTH} {
-        background: #8de09f73;
+        background: #edf8ff;
     }
     &:not(.${IN_SELECTED_MONTH}) {
         background: #f3f3f3;
     }
     &:hover.${IN_SELECTED_MONTH} {
-        background: #8de09f33;
+        background: #ddf2ff;
     }
 `;
 

@@ -3,7 +3,8 @@ import {
     DayCellsContainer,
     DayCellGrid,
     GridRowFractionForDayView,
-    GridBackgroundRow
+    GridBackgroundRow,
+    EventCardForDayView
 } from './styled';
 import {
     KTSCalendarProps,
@@ -18,7 +19,6 @@ import {
 } from 'Common/constants';
 import { DEFAULT_DAYS_NAMES } from 'Components/KTSCalendar/constants';
 import { dateAreSame } from 'Common/utils';
-const BLOCKS_IN_ONE_HOUR = 60 / DEFAULT_TIME_IN_ONE_BLOCK;
 
 const DayCellForDayView = ({
     calendarProps,
@@ -28,83 +28,88 @@ const DayCellForDayView = ({
     calendarProps: KTSCalendarProps;
 }) => {
     const {
-        dayHoursRangeStart = DEFAULT_DAY_HOURS_RANGE_START,
-        dayHoursRangeEnd = DEFAULT_DAY_HOURS_RANGE_END,
-        events,
+        dayEndHour = DEFAULT_DAY_HOURS_RANGE_END,
+        dayStartHour = DEFAULT_DAY_HOURS_RANGE_START,
         daysNames = DEFAULT_DAYS_NAMES,
+        events,
+        timeFraction = DEFAULT_TIME_IN_ONE_BLOCK,
         view
     } = calendarProps;
-    const isToday = dateAreSame(cellDate, new Date(), 'yyyyMMDD');
-    const totalFractionsInOneHour = BLOCKS_IN_ONE_HOUR; // 12
+
+    const todayCell = dateAreSame(cellDate, new Date(), 'yyyyMMDD')
+        ? ' today-cell'
+        : '';
+    const totalBlocksInOneHour = 60 / timeFraction; // 12
     const dayName = daysNames[cellDate.getDay()];
-    const totalHours = dayHoursRangeEnd - dayHoursRangeStart;
+    const totalHours = dayEndHour - dayStartHour;
     const columnsIndexesLastEndTime: EventTime[] = [];
     const dayCellEventsWithColumnIndexex = getEventsWithColumnIndexes(
         cellDate,
         events,
         columnsIndexesLastEndTime
     );
+
+    const renderBackgroundRows = (totalColumns: number) =>
+        new Array(totalHours).fill(1).map((a, i) => {
+            const rowStart = i * totalBlocksInOneHour + 1;
+            const rowEnd = rowStart + totalBlocksInOneHour;
+            return (
+                <GridBackgroundRow
+                    key={i}
+                    style={{
+                        gridRow: `${rowStart}/${rowEnd}`,
+                        gridColumn: '1/' + totalColumns
+                    }}
+                />
+            );
+        });
+
     return (
         <DayCellsContainer
             key={dayName}
-            style={isToday ? { background: '#f4f4f4' } : {}}
+            className={'day-cells-container' + todayCell}
         >
-            <div className="backGround">
-                <DayCellGrid
-                    className="day-background"
-                    styled={{
-                        totalColumns: 1,
-                        totalFractionsInOneHour: 1,
-                        totalHours,
-                        view: 'week'
-                    }}
-                >
-                    {new Array(totalHours).fill(1).map((a, i) => (
-                        <GridBackgroundRow key={i} />
-                    ))}
-                </DayCellGrid>
-            </div>
-            <div className="events-wrapper">
-                <DayCellGrid
-                    className="day-events"
-                    styled={{
-                        totalHours,
-                        totalFractionsInOneHour,
-                        totalColumns: columnsIndexesLastEndTime.length || 1,
-                        view,
-                        gridColumnGap: '2px',
-                        gridRowGap: '2px'
-                    }}
-                >
-                    {dayCellEventsWithColumnIndexex.map(
-                        ({ event, columnIndex }, index) => {
-                            const start =
-                                event.startTime.hh * 60 + event.startTime.mm;
-                            const end =
-                                event.endTime.hh * 60 + event.endTime.mm;
+            <DayCellGrid
+                className="day-events-wrapper"
+                styled={{
+                    totalHours,
+                    totalBlocksInOneHour,
+                    totalColumns: columnsIndexesLastEndTime.length || 1,
+                    view
+                    // gridColumnGap: '2px',
+                    // gridRowGap: '2px'
+                }}
+            >
+                {renderBackgroundRows(totalBlocksInOneHour)}
+                {dayCellEventsWithColumnIndexex.map(
+                    ({ event, columnIndex }, index) => {
+                        const start =
+                            event.startTime.hh * 60 + event.startTime.mm;
+                        const end = event.endTime.hh * 60 + event.endTime.mm;
 
-                            const totalRowsFractions =
-                                (end - start) / DEFAULT_TIME_IN_ONE_BLOCK;
-                            const rowIndex =
-                                (start - dayHoursRangeStart * 60) /
-                                DEFAULT_TIME_IN_ONE_BLOCK;
+                        const totalRowsFractions =
+                            (end - start) / DEFAULT_TIME_IN_ONE_BLOCK;
+                        const rowIndex =
+                            (start - dayStartHour * 60) /
+                            DEFAULT_TIME_IN_ONE_BLOCK;
 
-                            return (
-                                <GridRowFractionForDayView
-                                    key={index}
-                                    styled={{
-                                        columnIndex,
-                                        rowIndex,
-                                        totalRowsFractions
-                                    }}
-                                >
-                                    <div>Event</div>
-                                </GridRowFractionForDayView>
-                            );
-                        }
-                    )}
-                </DayCellGrid>
-            </div>
+                        return (
+                            <GridRowFractionForDayView
+                                key={index}
+                                styled={{
+                                    columnIndex,
+                                    rowIndex,
+                                    totalRowsFractions
+                                }}
+                            >
+                                <EventCardForDayView>
+                                    {event.title}
+                                </EventCardForDayView>
+                            </GridRowFractionForDayView>
+                        );
+                    }
+                )}
+            </DayCellGrid>
         </DayCellsContainer>
     );
 };

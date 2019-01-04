@@ -29,7 +29,7 @@ export const CalendarGridForMonthView = styled(CGFMV)`
 `;
 
 const ATR = styled.div<{
-    styled: { totalTimeSlots: number };
+    styled: { totalHours: number };
 }>``;
 
 export const AsideTimesRange = styled(ATR)`
@@ -38,7 +38,7 @@ export const AsideTimesRange = styled(ATR)`
     /* border-top: solid 1px #ccc; */
     border-left: solid 1px #ccc;
     display: grid;
-    grid-template-rows: repeat(${props => props.styled.totalTimeSlots}, 1fr);
+    grid-template-rows: repeat(${props => props.styled.totalHours}, 1fr);
     & > *:not(:first-child) {
         border-top: solid 1px #cccccc;
     }

@@ -4,7 +4,7 @@ import { ViewType } from 'Components/KTSCalendar/interfaces';
 interface DayCellColumnProps<V = ViewType> {
     styled: {
         totalHours: number;
-        totalFractionsInOneHour: number;
+        totalBlocksInOneHour: number;
         totalColumns: number;
         view: V;
         gridRowGap?: string;
@@ -17,30 +17,38 @@ export const DayCellsContainer = styled.div`
     width: 100%;
     height: 100%;
     border-left: solid 1px #cccccc;
-    & > * {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    overflow: auto;
+    &.today-cell {
+        background: #edf8ff;
     }
+`;
+
+export const CellsBackground = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
 `;
 const DCG = styled.div<DayCellColumnProps>``;
 export const DayCellGrid = styled(DCG)`
-    position: relative;
+    position: absolute;
     display: grid;
     height: 100%;
+    width: 100%;
     grid-template-rows: repeat(
-        ${props =>
-            props.styled.totalHours * props.styled.totalFractionsInOneHour},
+        ${props => props.styled.totalHours * props.styled.totalBlocksInOneHour},
         1fr
     );
     grid-template-columns: repeat(
         ${props => props.styled.totalColumns},
         ${props => (props.styled.view === 'day' ? '25rem' : 'auto')}
     );
-    overflow-x: auto;
+    /* overflow-x: auto; */
     grid-row-gap: ${props => props.styled.gridRowGap || 0};
     grid-column-gap: ${props => props.styled.gridColumnGap || 0};
 `;
@@ -65,8 +73,7 @@ export const GridRowFractionForDayView = styled(GRFFDV)`
     grid-row: ${({ styled: { rowIndex, totalRowsFractions } }) => {
         return `${rowIndex + 1}/${rowIndex + totalRowsFractions + 1}`;
     }};
-    border-radius: 2px;
-    box-shadow: 0 0.2rem 0.2rem #e8e8e8;
+    padding: 2px;
 `;
 
 export const GridBackgroundRow = styled.div`
@@ -76,6 +83,16 @@ export const GridBackgroundRow = styled.div`
         border-top: solid 1px #cccccc;
     }
     &:hover {
-        background: #8de09f33;
+        background: #ddf2ff;
     }
+`;
+
+export const EventCardForDayView = styled.div`
+    /* min-width: 15rem; */
+    background: #365c84;
+    box-shadow: #363738 0px 2px 4px;
+    height: 100%;
+    position: relative;
+    padding: 4px;
+    color: white;
 `;
