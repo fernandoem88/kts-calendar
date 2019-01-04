@@ -1,23 +1,39 @@
 import * as React from 'react';
-import { DayCellProps, KTSCalendarProps, EventRenderer } from './interfaces';
+import {
+    DayCellProps,
+    KTSCalendarProps,
+    EventRenderer,
+    CalendarEvent,
+    EventsWrapperRendererParams,
+    EventRendererParams
+} from './interfaces';
 import moment from 'moment';
-import { KTSCalendarContainer, CalendarGridForMonthView } from './styled';
+import {
+    KTSCalendarArea,
+    CalendarGridForMonthView,
+    KTSCalendarLayout,
+    AsideTimesRange,
+    CalendarHeaderArea
+} from './styled';
 import { DEFAULT_MONTHS_NAMES, DEFAULT_DAYS_NAMES } from './constants';
 // import { ReactStandarProps } from 'Common/interfaces';
 import {
     // DEFAULT_DATE_FORMAT,
     DEFAULT_DAY_HOURS_RANGE_END,
-    DEFAULT_DAY_HOURS_RANGE_START
+    DEFAULT_DAY_HOURS_RANGE_START,
+    DEFAULT_DATE_FORMAT
     // DEFAULT_TIME_IN_ONE_BLOCK
 } from 'Common/constants';
 import { dateAreSame } from 'Common/utils';
-import DayCellForMonthView from 'Components/DayCellForMonthView';
-import DayCellsHeader, {
-    DayCellsHeaderParams
-} from 'Components/DayCellsHeader';
+import CalendarHeader, {
+    CalendarHeaderParams
+} from 'Components/CalendarHeader';
+import DayCellWrapperForMonthView from 'Components/DayCellWrapperForMonthView';
+import DayCellForDayView from 'Components/DayCellForDayView';
 
 // const BLOCKS_IN_ONE_HOUR = 60 / DEFAULT_TIME_IN_ONE_BLOCK;
 type OwnProps = KTSCalendarProps;
+type RFC<T = any> = React.FunctionComponent<T>;
 export default class KTSCalendar extends React.Component<OwnProps> {
     static defaultProps: Partial<OwnProps> = {
         daysNames: DEFAULT_DAYS_NAMES,
@@ -31,56 +47,58 @@ export default class KTSCalendar extends React.Component<OwnProps> {
     }
 
     render() {
+        const { view } = this.props;
         return (
-            <KTSCalendarContainer className="kts-calendar">
-                {this.renderGridHeader()}
-                {this.renderCalendar()}
-            </KTSCalendarContainer>
+            <KTSCalendarLayout data-view={view}>
+                {this.renderAsideTimesRange()}
+                <CalendarHeaderArea>
+                    {this.renderGridHeader()}
+                </CalendarHeaderArea>
+                <KTSCalendarArea className="kts-calendar">
+                    {this.renderCalendar()}
+                </KTSCalendarArea>
+            </KTSCalendarLayout>
         );
     }
 
-    renderCalendar = () => {
-        const { view } = this.props;
-
-        return view === 'month' ? this.renderGridForMonthView() : null;
-    };
-
-    /**
-     * @description get events related to the month of the date props. this value change on date change
-     */
-    public getSelectedMonthEvents = () => {
-        const { events, date } = this.props;
-        return events.filter(e => {
-            const d = moment(e.date).toDate();
-            return dateAreSame(d, date, 'YYYYMM');
-        });
-    };
-
-    public getEventsInRange = (start: Date, end: Date) => {
-        const { events } = this.props;
-
-        const startDate = moment(start).set({
-            hours: 0,
-            minutes: 0,
-            seconds: 0
-        });
-        const endDate = moment(end).set({
-            hours: 23,
-            minutes: 59,
-            seconds: 59
-        });
-
-        console.log(
-            `getEventsInRange: ${startDate.format(
-                'DD/MM/YYYY HH:mm'
-            )} - ${endDate.format('DD/MM/YYYY HH:mm')}`
+    renderAsideTimesRange = () => {
+        const {
+            dayHoursRangeEnd = DEFAULT_DAY_HOURS_RANGE_END,
+            dayHoursRangeStart = DEFAULT_DAY_HOURS_RANGE_START
+        } = this.props;
+        const totalTimeSlots = dayHoursRangeEnd - dayHoursRangeStart;
+        return (
+            this.props.view !== 'month' && (
+                <AsideTimesRange styled={{ totalTimeSlots }}>
+                    {new Array(totalTimeSlots)
+                        .fill(dayHoursRangeStart)
+                        .map((h, i) => (
+                            <div key={h + i}>{h + i}</div>
+                        ))}
+                </AsideTimesRange>
+            )
         );
-        return events.filter(e => {
-            const date = moment(e.date);
-            return (
-                date.isSameOrAfter(startDate) && date.isSameOrBefore(endDate)
-            );
-        });
+    };
+
+    renderCalendar = () => {
+        const { view, date } = this.props;
+        switch (view) {
+            case 'month':
+                return this.renderGridForMonthView();
+            case 'day':
+                return this.renderGridForDayView(date);
+            case 'week':
+                return this.renderGridForWeekView();
+            default:
+                return null;
+        }
+    };
+
+    renderEvent: EventRenderer = cellParams => {
+        const { event } = cellParams;
+        return (
+            <div key={event.date.getTime() + event.title}>{event.title}</div>
+        );
     };
 
     public renderGridHeader = () => {
@@ -94,7 +112,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         const { startDate } =
             view === 'month'
                 ? this.getMonthViewDateRange()
-                : this.getWeekViewDateRange();
+                : this.getWeekViewDateRange(date);
 
         const weekDates = this.generateDatesInDateRange(
             startDate,
@@ -103,20 +121,53 @@ export default class KTSCalendar extends React.Component<OwnProps> {
                 .toDate()
         );
 
-        const params: DayCellsHeaderParams = {
+        const params: CalendarHeaderParams = {
             view,
             weekDates,
             cellDate: view === 'day' ? date : undefined,
             navigation,
             daysNames
         };
-        return <DayCellsHeader {...params} />;
+        return <CalendarHeader {...params} />;
     };
 
-    public renderGridForMonthView = () => {
+    renderGridForDayView = (cellDate: Date) => {
+        const frmt = moment(cellDate).format('DD-MM-YYYY');
+        return (
+            <DayCellForDayView
+                key={frmt}
+                cellDate={cellDate}
+                calendarProps={this.props}
+            />
+        );
+    };
+
+    renderMonthEvent: RFC<CalendarEvent> = (event: CalendarEvent) => {
+        const { components, date, navigation, events, view } = this.props;
+        const cellEvents = events.filter(e =>
+            dateAreSame(e.date, event.date, DEFAULT_DATE_FORMAT)
+        );
+        const renderEvents = components ? components.renderEvent : null;
+        if (renderEvents) {
+            const Ev = renderEvents;
+            const data = {
+                calendarReferenceDate: date,
+                cellEvents,
+                event,
+                navigation,
+                view
+            };
+            return <Ev {...data} key={event.date.getTime()} />;
+        }
+        return <div key={event.date.getTime()}>event</div>;
+    };
+
+    renderGridForMonthView = () => {
         const { weeks, startDate, endDate } = this.getMonthViewDateRange();
         const dates = this.generateDatesInDateRange(startDate, endDate);
         const dayCellPropsgenerator = this.dayCellPropsGenerator();
+        const CellWrapper = this.renderDayCellWrapperForMonthView;
+
         return (
             <CalendarGridForMonthView
                 className="grid-for-monthView calendar-grid"
@@ -126,17 +177,79 @@ export default class KTSCalendar extends React.Component<OwnProps> {
                 {dates.map((cellDate, i) => {
                     const dayCellProps = dayCellPropsgenerator(cellDate);
                     return (
-                        <DayCellForMonthView
-                            key={cellDate.getTime()}
-                            {...dayCellProps}
-                        />
+                        <CellWrapper key={cellDate.getTime()} {...dayCellProps}>
+                            {[].map(this.renderMonthEvent)}
+                        </CellWrapper>
                     );
                 })}
             </CalendarGridForMonthView>
         );
     };
 
-    public dayCellPropsGenerator = () => {
+    renderDayCellWrapperForMonthView: RFC<
+        EventsWrapperRendererParams
+    > = params => {
+        const { calendarReferenceDate, cellEvents, navigation, view } = params;
+
+        const { components } = this.props;
+        const getInput = (e: CalendarEvent) => ({
+            calendarReferenceDate,
+            event: e,
+            cellEvents,
+            navigation,
+            view
+        });
+
+        const renderEvent =
+            components && components.renderEvent
+                ? components.renderEvent
+                : ({ event }: EventRendererParams) => (
+                      <div key={event.date.getTime()}>event</div>
+                  );
+
+        const renderEvents = () =>
+            cellEvents.map(e => renderEvent(getInput(e)));
+
+        if (components && components.renderEventsWrapper) {
+            const Wrapper = components.renderEventsWrapper(params);
+            return <Wrapper>{renderEvents()}</Wrapper>;
+        }
+        const DefaultWrapper = DayCellWrapperForMonthView(params);
+        return <DefaultWrapper>{renderEvents()}</DefaultWrapper>;
+    };
+
+    public renderGridForWeekView = () => {
+        const { date } = this.props;
+        const { startDate } = this.getWeekViewDateRange(date);
+        const monday = moment(startDate).set({
+            hours: 0,
+            minute: 0,
+            second: 0
+        });
+
+        const sundDay = monday.clone().add({ days: 7 });
+        const dates = new Array(sundDay.diff(monday, 'days'))
+            .fill(monday)
+            .map((m: moment.Moment, i) => {
+                const c = m.clone().add({ days: i });
+                return c.toDate();
+            });
+
+        return (
+            <div
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(7, 1fr)',
+                    position: 'relative',
+                    height: '100%'
+                }}
+            >
+                {dates.map(this.renderGridForDayView)}
+            </div>
+        );
+    };
+
+    private dayCellPropsGenerator = () => {
         const { weeks, startDate, endDate } = this.getMonthViewDateRange();
         const { components, date, view } = this.props;
         const today = new Date();
@@ -173,209 +286,45 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         };
     };
 
-    renderEvent: EventRenderer = cellParams => {
-        const { event } = cellParams;
-        return (
-            <div key={event.date.getTime() + event.title}>{event.title}</div>
-        );
-    };
-
-    // public renderGridForDayView = ({
-    //     calendarProps,
-    //     date,
-    //     showDayTopHeader = true,
-    //     showLateralHours = true
-    // }: {
-    //     date: Date;
-    //     showLateralHours?: boolean;
-    //     showDayTopHeader?: boolean;
-    //     calendarProps: OwnProps;
-    // }) => {
-    //     const {
-    //         dayHoursRangeStart = DEFAULT_DAY_HOURS_RANGE_START,
-    //         dayHoursRangeEnd = DEFAULT_DAY_HOURS_RANGE_END,
-    //         events: evts,
-    //         daysNames = DEFAULT_DAYS_NAMES,
-    //         view
-    //     } = calendarProps;
-
-    //     const totalTimeSlots = dayHoursRangeEnd - dayHoursRangeStart;
-    //     const timeSlotsArray = new Array(totalTimeSlots).fill(1);
-    //     const events = evts
-    //         .filter(e => {
-    //             return dateAreSame(e.date, date, DEFAULT_DATE_FORMAT);
-    //         })
-    //         .sort(({ date: d1 }, { date: d2 }) => {
-    //             return d1.getTime() - d2.getTime();
-    //         });
-    //     const columnsIndexesLastEndTime: EventTime[] = [];
-    //     const getGridColumnIndex = ({
-    //         startTime: { hh, mm },
-    //         endTime: et
-    //     }: CalendarEvent) => {
-    //         let index = columnsIndexesLastEndTime.findIndex(last => {
-    //             return last.hh * 60 + last.mm <= hh * 60 + mm;
-    //         });
-    //         index = index === -1 ? columnsIndexesLastEndTime.length : index;
-    //         columnsIndexesLastEndTime[index] = et;
-    //         return index;
-    //     };
-
-    //     const isToday = dateAreSame(date, new Date(), 'yyyyMMDD');
-
-    //     const eventsWithColumnIndexes: Array<{
-    //         event: IEasyCalendarDefaultEventExtended;
-    //         columnIndex: number;
-    //     }> = events.map(evt => {
-    //         return { event: evt, columnIndex: getGridColumnIndex(evt) };
-    //     });
-    //     const totalFractionsInOneHour = BLOCKS_IN_ONE_HOUR; // 12
-    //     const customerRenderIncludesDayView =
-    //         !renderDayEventsExcludes ||
-    //         renderDayEventsExcludes.indexOf('day') === -1;
-
-    //     const dateMoment = moment(date);
-    //     const dayName =
-    //         dateMoment.day() === 0
-    //             ? daysNames[6]
-    //             : daysNames[dateMoment.day() - 1];
-    //     const onHeaderClick = () => {
-    //         if (view === 'day') {
-    //             return;
-    //         }
-    //         calendarProps.navigation.onDate(date);
-    //         calendarProps.navigation.onView('day');
-    //     };
-    //     const totalHours = totalTimeSlots;
-    //     const Header = renderGridHeader ? (
-    //         renderGridHeader(this.props)
-    //     ) : (
-    //         <GridHeaderForDayView
-    //             onClick={onHeaderClick}
-    //             className={view === 'day' ? '' : 'clickable'}
-    //             style={isToday ? { color: '#65cc33' } : {}}
-    //         >
-    //             <span>{view === 'week' ? dayName.substr(0, 3) : dayName}</span>
-    //             <span>{dateMoment.format('DD')}</span>
-    //         </GridHeaderForDayView>
-    //     );
-    //     return (
-    //         <GridForDayView
-    //             styled={{ showLateralHours }}
-    //             key={dayName}
-    //             style={isToday ? { background: '#f4f4f4' } : {}}
-    //         >
-    //             {showDayTopHeader && Header}
-    //             {showLateralHours && (
-    //                 <GridAsideForDayView styled={{ totalTimeSlots }}>
-    //                     {timeSlotsArray.map((ts, index) => {
-    //                         return (
-    //                             <div key={index}>{dayStartTime + index}</div>
-    //                         );
-    //                     })}
-    //                 </GridAsideForDayView>
-    //             )}
-    //             <GridAreaContentForDayEvents>
-    //                 <GridEventContainerForDayView className="day-background">
-    //                     <GridRowForDayView
-    //                         styled={{
-    //                             totalFractionsInOneHour: 1,
-    //                             totalTimeSlots: totalHours,
-    //                             view: 'week',
-    //                             totalColumns: 1
-    //                         }}
-    //                     >
-    //                         {new Array(totalHours).fill(1).map((a, i) => (
-    //                             <div
-    //                                 key={i}
-    //                                 style={{
-    //                                     borderTop: 'solid 1px #cccccc',
-    //                                     color: 'transparent'
-    //                                 }}
-    //                             >
-    //                                 .
-    //                             </div>
-    //                         ))}
-    //                     </GridRowForDayView>
-    //                 </GridEventContainerForDayView>
-    //                 <GridEventContainerForDayView className="day-events">
-    //                     <GridRowForDayView
-    //                         styled={{
-    //                             totalTimeSlots,
-    //                             totalFractionsInOneHour,
-    //                             totalColumns:
-    //                                 columnsIndexesLastEndTime.length || 1,
-    //                             view,
-    //                             gridColumnGap: 2,
-    //                             gridRowGap: 2
-    //                         }}
-    //                         style={{ background: 'transparent' }}
-    //                     >
-    //                         {eventsWithColumnIndexes.map(
-    //                             ({ event, columnIndex }, index) => {
-    //                                 const start =
-    //                                     event.startTime.hh * 60 +
-    //                                     event.startTime.mm;
-    //                                 const end =
-    //                                     event.endTime.hh * 60 +
-    //                                     event.endTime.mm;
-
-    //                                 const totalRowsFractions =
-    //                                     (end - start) /
-    //                                     DEFAULT_TIME_IN_ONE_BLOCK;
-    //                                 const rowIndex =
-    //                                     (start - dayStartTime * 60) /
-    //                                     DEFAULT_TIME_IN_ONE_BLOCK;
-
-    //                                 const dayRendererProps: IDayEventsRendererProps = {
-    //                                     events: [event],
-    //                                     date,
-    //                                     view
-    //                                 };
-    //                                 return (
-    //                                     <GridRowFractionForDayView
-    //                                         key={index}
-    //                                         styled={{
-    //                                             columnIndex,
-    //                                             rowIndex,
-    //                                             totalRowsFractions
-    //                                         }}
-    //                                     >
-    //                                         {dayEventRenderer(dayRendererProps)}
-    //                                     </GridRowFractionForDayView>
-    //                                 );
-    //                             }
-    //                         )}
-    //                     </GridRowForDayView>
-    //                 </GridEventContainerForDayView>
-    //             </GridAreaContentForDayEvents>
-    //         </GridForDayView>
-    //     );
-    // };
-
-    public renderGridForWeekView = () => {
-        // const {  weekStartAt,date } = this.props;
-        // const { startDate } = this.getWeekViewDateRange(date);
-        // const monday = moment(startDate).set({
-        //     hours: 0,
-        //     minute: 0,
-        //     second: 0
-        // });
-
-        // const sundDay = monday.clone().add({ days: 7 });
-        // const dates = new Array(sundDay.diff(monday, 'days'))
-        //     .fill(monday)
-        //     .map((m: moment.Moment, i) => {
-        //         const c = m.clone().add({ days: i });
-        //         return c.toDate();
-        //     });
-
-        return 'week';
-    };
-
-    public findDayEvents = (events: OwnProps['events'], d: Date) => {
+    private findDayEvents = (events: OwnProps['events'], d: Date) => {
         return events.filter(({ date }) => {
             return dateAreSame(d, date, 'YYYYMMDD');
+        });
+    };
+
+    private generateDatesInDateRange = (startDate: Date, endDate: Date) => {
+        const startMoment = moment(startDate);
+        const dates = [];
+        while (startMoment.isSameOrBefore(endDate)) {
+            dates.push(startMoment.toDate());
+            startMoment.add({ days: 1 });
+        }
+        return dates;
+    };
+
+    private getEventsInRange = (start: Date, end: Date) => {
+        const { events } = this.props;
+        const startDate = moment(start).set({
+            hours: 0,
+            minutes: 0,
+            seconds: 0
+        });
+        const endDate = moment(end).set({
+            hours: 23,
+            minutes: 59,
+            seconds: 59
+        });
+
+        console.log(
+            `getEventsInRange: ${startDate.format(
+                'DD/MM/YYYY HH:mm'
+            )} - ${endDate.format('DD/MM/YYYY HH:mm')}`
+        );
+        return events.filter(e => {
+            const date = moment(e.date);
+            return (
+                date.isSameOrAfter(startDate) && date.isSameOrBefore(endDate)
+            );
         });
     };
 
@@ -384,7 +333,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
      * in the week of the 1rst of the current month and the sunday  in the week of the last day of the month.
      * also it returns the number of weeks within this period
      */
-    public getMonthViewDateRange = () => {
+    private getMonthViewDateRange = () => {
         const { weekStartAt, date } = this.props;
         const now = moment(date);
         // starting at the first of month
@@ -432,8 +381,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         };
     };
 
-    public getWeekViewDateRange = () => {
-        const { date } = this.props;
+    private getWeekViewDateRange = (date: Date) => {
         const { startDate } = this.getMonthViewDateRange();
         const mmtStart = moment(startDate);
         const mmtEnd = mmtStart.clone().add({ days: 6 });
@@ -450,13 +398,14 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         };
     };
 
-    private generateDatesInDateRange = (startDate: Date, endDate: Date) => {
-        const startMoment = moment(startDate);
-        const dates = [];
-        while (startMoment.isSameOrBefore(endDate)) {
-            dates.push(startMoment.toDate());
-            startMoment.add({ days: 1 });
-        }
-        return dates;
-    };
+    // /**
+    //  * @description get events related to the month of the date props. this value change on date change
+    //  */
+    // private getSelectedMonthEvents = () => {
+    //     const { events, date } = this.props;
+    //     return events.filter(e => {
+    //         const d = moment(e.date).toDate();
+    //         return dateAreSame(d, date, 'YYYYMM');
+    //     });
+    // };
 }

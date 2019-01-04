@@ -4,17 +4,17 @@ import {
     EventNavigation,
     DaysArray
 } from 'Components/KTSCalendar/interfaces';
-import { DayCellsHeaderStyle } from './styled';
+import { CalendarHeaderStyle } from './styled';
 import moment from 'moment';
 
-export type DayCellsHeaderParams = {
+export type CalendarHeaderParams = {
     daysNames: DaysArray;
     weekDates: Date[];
     cellDate?: Date;
     view: ViewType;
     navigation?: EventNavigation;
 };
-const DayCellsHeader = (props: DayCellsHeaderParams) => {
+const CalendarHeader = (props: CalendarHeaderParams) => {
     const { cellDate, daysNames, view, weekDates } = props;
     const getDayName = (d: Date) => {
         const index = d.getDay();
@@ -24,18 +24,24 @@ const DayCellsHeader = (props: DayCellsHeaderParams) => {
     };
     if (view === 'day') {
         return (
-            <DayCellsHeaderStyle className="day-cell-header">
+            <CalendarHeaderStyle className="day-cell-header" data-view={view}>
                 {cellDate && <div>{getDayName(cellDate)}</div>}
-            </DayCellsHeaderStyle>
+            </CalendarHeaderStyle>
         );
     }
     return (
-        <DayCellsHeaderStyle className="day-cell-header">
-            {weekDates.map((d, i) => (
-                <div key={i}>{getDayName(d)}</div>
-            ))}
-        </DayCellsHeaderStyle>
+        <CalendarHeaderStyle className="day-cell-header" data-view={view}>
+            {weekDates.map((d, i) => {
+                const gridColumn =
+                    i === 0 && view !== 'month' ? { gridColumn: '1/3' } : {};
+                return (
+                    <div key={i} style={gridColumn}>
+                        {getDayName(d)}
+                    </div>
+                );
+            })}
+        </CalendarHeaderStyle>
     );
 };
 
-export default DayCellsHeader;
+export default CalendarHeader;

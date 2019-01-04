@@ -126,7 +126,7 @@ export interface EventNavigation<V = ViewType> {
 export type EventRenderer<
     E extends CalendarEvent = CalendarEvent,
     V = ViewType
-> = (data: EventRendererParams<E, V>) => JSX.Element | string | null;
+> = React.FunctionComponent<EventRendererParams<E, V>>; // (data: EventRendererParams<E, V>) => JSX.Element | string | null;
 
 export interface EventRendererParams<
     E extends CalendarEvent = CalendarEvent,
@@ -144,6 +144,7 @@ export type EventsWrapperRenderer<
 > = (
     params: EventsWrapperRendererParams<E, V>
 ) => React.FunctionComponent | React.ComponentClass;
+
 export interface EventsWrapperRendererParams<
     E extends CalendarEvent = CalendarEvent,
     V = ViewType

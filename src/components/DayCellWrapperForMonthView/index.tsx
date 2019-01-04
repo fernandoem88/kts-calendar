@@ -6,12 +6,12 @@ import {
 } from 'Components/KTSCalendar/interfaces';
 import { dateAreSame } from 'Common/utils';
 import {
-    EventsWrapperStyleForMonthView,
+    MonthCellContainer,
     CellHeader,
     EventsListForMonthView
 } from './styled';
 
-const EventsWrapperForMonthView: EventsWrapperRenderer = wrapperProps => {
+const DayCellWrapperForMonthView: EventsWrapperRenderer = wrapperProps => {
     const {
         calendarReferenceDate,
         cellDate,
@@ -47,15 +47,15 @@ const EventsWrapperForMonthView: EventsWrapperRenderer = wrapperProps => {
 
     return (props: any = {}) =>
         dateAreSame(calendarReferenceDate, cellDate, 'YYYYMM') ? (
-            <EventsWrapperStyleForMonthView className={classes.join(' ')}>
+            <MonthCellContainer className={classes.join(' ')}>
                 <CellHeader>{cellDate.getDate()}</CellHeader>
                 <EventsListForMonthView>
                     {props.children || null}
                 </EventsListForMonthView>
-            </EventsWrapperStyleForMonthView>
+            </MonthCellContainer>
         ) : (
-            <EventsWrapperStyleForMonthView className={classes.join(' ')} />
+            <MonthCellContainer className={classes.join(' ')} />
         );
 };
 
-export default EventsWrapperForMonthView;
+export default DayCellWrapperForMonthView;

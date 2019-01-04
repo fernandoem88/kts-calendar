@@ -5,9 +5,12 @@ export const AppLayout = styled.div`
     height: 100vh;
     display: grid;
     grid-template-rows: 4.8rem 1fr;
+    grid-template-columns: 25rem 1fr;
+    grid-template-areas: 'filter app-header' 'filter calendar';
 `;
 
-export const AppHeader = styled.div`
+export const HeaderArea = styled.div`
+    grid-area: app-header;
     position: relative;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -15,4 +18,11 @@ export const AppHeader = styled.div`
     & > div {
         cursor: pointer;
     }
+`;
+export const FilterArea = styled.div`
+    grid-area: filter;
+`;
+
+export const CalendarArea = styled.div`
+    grid-area: calendar;
 `;

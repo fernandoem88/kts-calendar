@@ -1,13 +1,34 @@
 import * as React from 'react';
 import KTSCalendar from 'Components/KTSCalendar';
-import { KTSCalendarProps, ViewType } from 'Components/KTSCalendar/interfaces';
+import {
+    KTSCalendarProps,
+    ViewType,
+    CalendarEvent
+} from 'Components/KTSCalendar/interfaces';
 import moment from 'moment';
-import { AppLayout, AppHeader } from './styled';
+import { AppLayout, HeaderArea, FilterArea, CalendarArea } from './styled';
+
 interface CalendarState {
     view: ViewType;
     date: Date;
 }
 export default class AppCalendar extends React.Component<any, CalendarState> {
+    events: CalendarEvent[] = [
+        {
+            id: '1',
+            startTime: { hh: 10, mm: 30 },
+            endTime: { hh: 11, mm: 50 },
+            title: 'propva',
+            date: new Date()
+        },
+        {
+            id: '2',
+            startTime: { hh: 10, mm: 45 },
+            endTime: { hh: 12, mm: 25 },
+            title: 'propva 2',
+            date: new Date()
+        }
+    ];
     constructor(props: any) {
         super(props);
         this.state = {
@@ -19,21 +40,24 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
         const { date, view } = this.state;
         const props: KTSCalendarProps = {
             weekStartAt: 'monday',
-            events: [],
+            events: this.events,
             view,
             date
         };
         return (
             <AppLayout>
-                <AppHeader>
+                <FilterArea>Filter</FilterArea>
+                <HeaderArea>
                     <div onClick={this.onPrevious}>previous</div>
                     <div style={buttonsStyle}>
                         <div>{date.toLocaleDateString()}</div>
                         {['month', 'week', 'day'].map(this.renderViewButton)}
                     </div>
                     <div onClick={this.onNext}>next</div>
-                </AppHeader>
-                <KTSCalendar {...props} />
+                </HeaderArea>
+                <CalendarArea>
+                    <KTSCalendar {...props} />
+                </CalendarArea>
             </AppLayout>
         );
     }
