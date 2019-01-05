@@ -18,14 +18,14 @@ export const MonthCellContainer = styled.div`
     &:not(.${IN_LAST_WEEK}) {
         border-bottom: solid 1px #cccccc;
     }
-    &.${TODAY_CELL}.${IN_SELECTED_MONTH} {
-        background: #edf8ff;
-    }
     &:not(.${IN_SELECTED_MONTH}) {
         background: #f3f3f3;
     }
+    &.${TODAY_CELL}.${IN_SELECTED_MONTH} {
+        background: #edf8ff;
+    }
     &:hover.${IN_SELECTED_MONTH} {
-        background: #ddf2ff;
+        background: #edf8ff;
     }
 `;
 
@@ -41,5 +41,6 @@ export const CellHeader = styled.div`
 
 export const EventsListForMonthView = styled.div`
     position: relative;
-    overflow: auto;
+    overflow-y: auto;
+    padding: 0.4rem;
 `;

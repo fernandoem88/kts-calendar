@@ -44,10 +44,9 @@ export const DayCellGrid = styled(DCG)`
         ${props => props.styled.totalHours * props.styled.totalBlocksInOneHour},
         1fr
     );
-    grid-template-columns: repeat(
-        ${props => props.styled.totalColumns},
-        ${props => (props.styled.view === 'day' ? '25rem' : 'auto')}
-    );
+    grid-template-columns:
+        repeat(${props => props.styled.totalColumns}, 'auto')
+        auto;
     /* overflow-x: auto; */
     grid-row-gap: ${props => props.styled.gridRowGap || 0};
     grid-column-gap: ${props => props.styled.gridColumnGap || 0};
@@ -83,7 +82,7 @@ export const GridBackgroundRow = styled.div`
         border-top: solid 1px #cccccc;
     }
     &:hover {
-        background: #ddf2ff;
+        background: #edf8ff;
     }
 `;
 

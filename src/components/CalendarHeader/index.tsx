@@ -1,47 +1,55 @@
 import React from 'react';
 import {
     ViewType,
-    EventNavigation,
-    DaysArray
+    CalendarHeaderParams
 } from 'Components/KTSCalendar/interfaces';
-import { CalendarHeaderStyle } from './styled';
+import { CalendarHeaderContainer } from './styled';
 import moment from 'moment';
 
-export type CalendarHeaderParams = {
-    daysNames: DaysArray;
-    weekDates: Date[];
-    cellDate?: Date;
-    view: ViewType;
-    navigation?: EventNavigation;
-};
 const CalendarHeader = (props: CalendarHeaderParams) => {
-    const { cellDate, daysNames, view, weekDates } = props;
+    const { daysNames, navigation, view, weekDates } = props;
     const getDayName = (d: Date) => {
         const index = d.getDay();
         const dayName = daysNames[index];
         const date = moment(d).format(' YYYY/MM/DD');
         return view === 'month' ? dayName : dayName.substr(0, 3) + date;
     };
-    if (view === 'day') {
-        return (
-            <CalendarHeaderStyle className="day-cell-header" data-view={view}>
-                {cellDate && <div>{getDayName(cellDate)}</div>}
-            </CalendarHeaderStyle>
-        );
-    }
+
     return (
-        <CalendarHeaderStyle className="day-cell-header" data-view={view}>
+        <CalendarHeaderContainer className="day-cell-header" data-view={view}>
             {weekDates.map((d, i) => {
                 const gridColumn =
                     i === 0 && view !== 'month' ? { gridColumn: '1/3' } : {};
                 return (
-                    <div key={i} style={gridColumn}>
+                    <div
+                        key={i}
+                        style={gridColumn}
+                        onClick={getOnClick(d, view, navigation)}
+                    >
                         {getDayName(d)}
                     </div>
                 );
             })}
-        </CalendarHeaderStyle>
+        </CalendarHeaderContainer>
     );
+};
+
+const getOnClick = (
+    cellDate: Date,
+    view: ViewType,
+    navigation: CalendarHeaderParams['navigation']
+) => {
+    if (view === 'day' || !navigation) {
+        return undefined;
+    }
+    return () => {
+        if (navigation.onView) {
+            navigation.onView('day');
+        }
+        if (navigation.onDate && cellDate) {
+            navigation.onDate(cellDate);
+        }
+    };
 };
 
 export default CalendarHeader;

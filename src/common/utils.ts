@@ -56,7 +56,7 @@ export const hhmmssObjectToTimeString = ({ hh, mm, ss }: EventTime): string => {
     return `${toTimeString(hh)}:${toTimeString(mm)}`;
 };
 
-export const dateAreSame = (d1: Date, d2: Date, compareFormat: string) =>
+export const datesAreSame = (d1: Date, d2: Date, compareFormat: string) =>
     moment(d1).format(compareFormat) === moment(d2).format(compareFormat);
 
 export const randomSwap = (array: any[]) => {

@@ -1,6 +1,3 @@
-// import { DayCellProps } from 'Components/DefaultDayCell/interfaces';
-// import { ReactStandarProps } from 'Common/interfaces';
-
 export type DayName =
     | 'monday'
     | 'tuesday'
@@ -85,7 +82,7 @@ export type Range60 =
 /**
  * @property date the event date. this will be truncated only on day/month/year info
  */
-export interface CalendarEvent {
+export interface EventData {
     date: Date;
     startTime: EventTime;
     endTime: EventTime;
@@ -94,13 +91,12 @@ export interface CalendarEvent {
     eventCategoryId?: string;
 }
 
-export interface DayCellProps<
-    E extends CalendarEvent = CalendarEvent,
-    V = ViewType
-> extends EventsWrapperRendererParams<E, V> {
-    renderEvent: EventRenderer<E, V>;
-    renderEventWrapper?: EventsWrapperRenderer<E, V>;
-}
+export type CalendarHeaderParams = {
+    daysNames: DaysArray;
+    weekDates: Date[];
+    view: ViewType;
+    navigation?: EventNavigation;
+};
 
 export interface EventCategory {
     id: string;
@@ -122,31 +118,24 @@ export interface EventNavigation<V = ViewType> {
     onDate?: (newReferenceDate: Date) => any;
     onView?: (newView: V) => any;
 }
-
-export type EventRenderer<
-    E extends CalendarEvent = CalendarEvent,
+export type Event<
+    E extends EventData = EventData,
     V = ViewType
-> = React.FunctionComponent<EventRendererParams<E, V>>; // (data: EventRendererParams<E, V>) => JSX.Element | string | null;
+> = React.FunctionComponent<EventProps<E, V>>;
 
-export interface EventRendererParams<
-    E extends CalendarEvent = CalendarEvent,
-    V = ViewType
-> {
+export interface EventProps<E extends EventData = EventData, V = ViewType> {
     calendarReferenceDate: Date;
     cellEvents: E[];
     event: E;
     navigation?: EventNavigation<V>;
     view: V;
 }
-export type EventsWrapperRenderer<
-    E extends CalendarEvent = CalendarEvent,
-    V = ViewType
-> = (
-    params: EventsWrapperRendererParams<E, V>
+export type EventsWrapper<E extends EventData = EventData, V = ViewType> = (
+    params: EventsWrapperProps<E, V>
 ) => React.FunctionComponent | React.ComponentClass;
 
-export interface EventsWrapperRendererParams<
-    E extends CalendarEvent = CalendarEvent,
+export interface EventsWrapperProps<
+    E extends EventData = EventData,
     V = ViewType
 > {
     columnIndex: number;
@@ -165,7 +154,7 @@ export interface EventsWrapperRendererParams<
     onDayEventClick?: (mouseEvent: React.MouseEvent, dayEvent: E) => any;
 }
 export interface KTSCalendarProps<
-    E extends CalendarEvent = CalendarEvent,
+    E extends EventData = EventData,
     V = ViewType
 > {
     events: E[];
@@ -177,22 +166,19 @@ export interface KTSCalendarProps<
     dayStartHour?: Range24;
     dayEndHour?: Range24;
     monthsNames?: MonthsArray;
-    weekStartAt?: 'monday' | 'sunday';
+    weekStartFrom?: 'monday' | 'sunday';
     components?: {
-        /**
-         * @description the render of a single event. use it if you want the wrapper to be the default one
-         */
-        renderEvent?: EventRenderer;
-        renderEventsWrapper?: EventsWrapperRenderer;
-        renderGridHeader?: (
-            calendarProps: KTSCalendarProps
-        ) => JSX.Element | string | null;
-        renderGridHoursLateralRange?: (
-            calendarProps: KTSCalendarProps
-        ) => JSX.Element | string | null;
+        renderEvent?: Event;
+        renderEventsWrapper?: EventsWrapper;
+        renderGridHeader?: React.FunctionComponent<CalendarHeaderParams>;
+        renderGridRangeSideBar?: React.FunctionComponent<{
+            dayStartHour?: Range24;
+            dayEndHour?: Range24;
+        }>;
     };
     navigation?: EventNavigation;
-
+    renderDefaultEventFor?: ViewType[];
+    renderDefaultEventsWrapperFor?: ViewType[];
     /**
      * @description when a view change, you will get an array of events inside the current selected view.
      */
@@ -201,16 +187,6 @@ export interface KTSCalendarProps<
         calendarProps: KTSCalendarProps
     ) => void;
 }
-/**
- * @description a static method to create the same events from a starting date to a final date
- * @param dateRange
- */
-// export type CreateEventsFromRange = <E extends IEasyCalendarDefaultEvent>(
-//     event: E,
-//     dateRange: { start: Date; end: Date },
-//     timeRange: { start: EventTime; end: EventTime },
-//     excludes?: date[]
-// ) => E[];
 
 export type ViewType = 'month' | 'week' | 'day' | 'agenda';
 

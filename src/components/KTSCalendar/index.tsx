@@ -1,11 +1,11 @@
 import * as React from 'react';
 import {
-    DayCellProps,
     KTSCalendarProps,
-    EventRenderer,
-    CalendarEvent,
-    EventsWrapperRendererParams,
-    EventRendererParams
+    Event,
+    EventData,
+    EventsWrapperProps,
+    EventProps,
+    CalendarHeaderParams
 } from './interfaces';
 import moment from 'moment';
 import {
@@ -16,20 +16,15 @@ import {
     CalendarHeaderArea
 } from './styled';
 import { DEFAULT_MONTHS_NAMES, DEFAULT_DAYS_NAMES } from './constants';
-// import { ReactStandarProps } from 'Common/interfaces';
 import {
-    // DEFAULT_DATE_FORMAT,
     DEFAULT_DAY_HOURS_RANGE_END,
     DEFAULT_DAY_HOURS_RANGE_START,
     DEFAULT_DATE_FORMAT
-    // DEFAULT_TIME_IN_ONE_BLOCK
 } from 'Common/constants';
-import { dateAreSame } from 'Common/utils';
-import CalendarHeader, {
-    CalendarHeaderParams
-} from 'Components/CalendarHeader';
-import DayCellWrapperForMonthView from 'Components/DayCellWrapperForMonthView';
+import { datesAreSame } from 'Common/utils';
+import EventsWrapperForMonthView from 'Components/EventsWrapperForMonthView';
 import DayCellForDayView from 'Components/DayCellForDayView';
+import CalendarHeader from 'Components/CalendarHeader';
 
 type OwnProps = KTSCalendarProps;
 type RFC<T = any> = React.FunctionComponent<T>;
@@ -39,7 +34,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         monthsNames: DEFAULT_MONTHS_NAMES,
         dayStartHour: DEFAULT_DAY_HOURS_RANGE_START,
         dayEndHour: DEFAULT_DAY_HOURS_RANGE_END,
-        weekStartAt: 'monday'
+        weekStartFrom: 'monday'
     };
     constructor(props: OwnProps) {
         super(props);
@@ -98,7 +93,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         }
     };
 
-    renderEvent: EventRenderer = cellParams => {
+    renderEvent: Event = cellParams => {
         const { event } = cellParams;
         return (
             <div key={event.date.getTime() + event.title}>{event.title}</div>
@@ -107,6 +102,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
 
     public renderGridHeader = () => {
         const {
+            components,
             date,
             daysNames = DEFAULT_DAYS_NAMES,
             navigation,
@@ -118,20 +114,25 @@ export default class KTSCalendar extends React.Component<OwnProps> {
                 ? this.getMonthViewDateRange()
                 : this.getWeekViewDateRange(date);
 
-        const weekDates = this.generateDatesInDateRange(
-            startDate,
-            moment(startDate)
-                .add({ days: 6 })
-                .toDate()
-        );
+        const weekDates =
+            view === 'day'
+                ? [date]
+                : this.generateDatesInDateRange(
+                      startDate,
+                      moment(startDate)
+                          .add({ days: 6 })
+                          .toDate()
+                  );
 
         const params: CalendarHeaderParams = {
             view,
             weekDates,
-            cellDate: view === 'day' ? date : undefined,
             navigation,
             daysNames
         };
+        if (components && components.renderGridHeader) {
+            return components.renderGridHeader(params);
+        }
         return <CalendarHeader {...params} />;
     };
 
@@ -146,10 +147,10 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         );
     };
 
-    renderMonthEvent: RFC<CalendarEvent> = (event: CalendarEvent) => {
+    renderMonthEvent: RFC<EventData> = (event: EventData) => {
         const { components, date, navigation, events, view } = this.props;
         const cellEvents = events.filter(e =>
-            dateAreSame(e.date, event.date, DEFAULT_DATE_FORMAT)
+            datesAreSame(e.date, event.date, DEFAULT_DATE_FORMAT)
         );
         const renderEvents = components ? components.renderEvent : null;
         if (renderEvents) {
@@ -169,7 +170,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
     renderGridForMonthView = () => {
         const { weeks, startDate, endDate } = this.getMonthViewDateRange();
         const dates = this.generateDatesInDateRange(startDate, endDate);
-        const dayCellPropsgenerator = this.dayCellPropsGenerator();
+        const eventsWrapperPropsgenerator = this.eventsWrapperPropsGenerator();
         const CellWrapper = this.renderEventsWrapperForMonthView;
 
         return (
@@ -179,7 +180,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
                 key="calendar-grid"
             >
                 {dates.map((cellDate, i) => {
-                    const dayCellProps = dayCellPropsgenerator(cellDate);
+                    const dayCellProps = eventsWrapperPropsgenerator(cellDate);
                     return (
                         <CellWrapper
                             key={cellDate.getTime()}
@@ -191,13 +192,11 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         );
     };
 
-    renderEventsWrapperForMonthView: RFC<
-        EventsWrapperRendererParams
-    > = params => {
+    renderEventsWrapperForMonthView: RFC<EventsWrapperProps> = params => {
         const { calendarReferenceDate, cellEvents, navigation, view } = params;
 
         const { components } = this.props;
-        const getInput = (e: CalendarEvent) => ({
+        const getInput = (e: EventData) => ({
             calendarReferenceDate,
             event: e,
             cellEvents,
@@ -208,7 +207,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         const renderEvent =
             components && components.renderEvent
                 ? components.renderEvent
-                : ({ event }: EventRendererParams) => (
+                : ({ event }: EventProps) => (
                       <div key={event.date.getTime() + event.title}>
                           {event.title}
                       </div>
@@ -221,7 +220,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
             const Wrapper = components.renderEventsWrapper(params);
             return <Wrapper>{renderEvents()}</Wrapper>;
         }
-        const DefaultWrapper = DayCellWrapperForMonthView(params);
+        const DefaultWrapper = EventsWrapperForMonthView(params);
         return <DefaultWrapper>{renderEvents()}</DefaultWrapper>;
     };
 
@@ -256,31 +255,25 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         );
     };
 
-    private dayCellPropsGenerator = () => {
+    private eventsWrapperPropsGenerator = () => {
         const { weeks, startDate, endDate } = this.getMonthViewDateRange();
-        const { components, date, view } = this.props;
+        const { date, view } = this.props;
         const today = new Date();
         const dates = this.generateDatesInDateRange(startDate, endDate);
         const events = this.getEventsInRange(startDate, endDate);
-        const renderEvent: EventRenderer =
-            components && components.renderEvent
-                ? components.renderEvent
-                : this.renderEvent;
         return (cellDate: Date) => {
             const index = dates.findIndex(d =>
-                dateAreSame(d, cellDate, 'YYYYMMDD')
+                datesAreSame(d, cellDate, 'YYYYMMDD')
             );
             const cellEvents = this.findDayEvents(events, cellDate);
             const rowIndex = parseInt(`${index / 7}` + '', 10);
             const columnIndex = index % 7;
-            const isInSelectedMonth = dateAreSame(date, cellDate, 'YYYYMM');
-            const isTodayDate = dateAreSame(today, cellDate, 'YYYYMMDD');
-
-            const dayCellProps: DayCellProps = {
+            const isInSelectedMonth = datesAreSame(date, cellDate, 'YYYYMM');
+            const isTodayDate = datesAreSame(today, cellDate, 'YYYYMMDD');
+            const eventsWrapperProps: EventsWrapperProps = {
                 calendarReferenceDate: date,
                 cellDate,
                 cellEvents,
-                renderEvent,
                 columnIndex,
                 isInSelectedMonth,
                 isTodayDate,
@@ -289,13 +282,13 @@ export default class KTSCalendar extends React.Component<OwnProps> {
                 view,
                 weeks
             };
-            return dayCellProps;
+            return eventsWrapperProps;
         };
     };
 
     private findDayEvents = (events: OwnProps['events'], d: Date) => {
         return events.filter(({ date }) => {
-            return dateAreSame(d, date, 'YYYYMMDD');
+            return datesAreSame(d, date, 'YYYYMMDD');
         });
     };
 
@@ -341,7 +334,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
      * also it returns the number of weeks within this period
      */
     private getMonthViewDateRange = () => {
-        const { weekStartAt, date } = this.props;
+        const { weekStartFrom, date } = this.props;
         const now = moment(date);
         // starting at the first of month
         const firstOfCurrentMonthDate = now.set({
@@ -355,9 +348,9 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         const firstOfNextMonth = startDate.clone().add({ months: 1 });
 
         let weekStartDayIndex = firstDayIndex;
-        if (weekStartAt === 'monday') {
+        if (weekStartFrom === 'monday') {
             weekStartDayIndex = 1;
-        } else if (weekStartAt === 'sunday' && firstDayIndex !== 7) {
+        } else if (weekStartFrom === 'sunday' && firstDayIndex !== 7) {
             weekStartDayIndex = 0;
         }
 
@@ -376,7 +369,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
                 : nextMonthFirstDay === 1
                 ? firstOfNextMonth.subtract({ days: 1 })
                 : firstOfNextMonth.add({ days: 7 - nextMonthFirstDay });
-        if (weekStartAt === 'sunday') {
+        if (weekStartFrom === 'sunday') {
             // the end of month in this case must be saturday
             endDate.subtract({ days: 1 });
         }
@@ -412,7 +405,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
     //     const { events, date } = this.props;
     //     return events.filter(e => {
     //         const d = moment(e.date).toDate();
-    //         return dateAreSame(d, date, 'YYYYMM');
+    //         return datesAreSame(d, date, 'YYYYMM');
     //     });
     // };
 }

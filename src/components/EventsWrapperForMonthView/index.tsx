@@ -1,29 +1,28 @@
 import React from 'react';
 import {
-    EventsWrapperRenderer,
-    EventsWrapperRendererParams,
+    EventsWrapper,
+    EventsWrapperProps,
     DayCellClasses
 } from 'Components/KTSCalendar/interfaces';
-import { dateAreSame } from 'Common/utils';
+import { datesAreSame } from 'Common/utils';
 import {
     MonthCellContainer,
     CellHeader,
     EventsListForMonthView
 } from './styled';
 
-const DayCellWrapperForMonthView: EventsWrapperRenderer = wrapperProps => {
+const EventsWrapperForMonthView: EventsWrapper = wrapperProps => {
     const {
         calendarReferenceDate,
         cellDate,
-        // cellEvents,
         columnIndex,
         isInSelectedMonth,
         isTodayDate,
         rowIndex,
         weeks
-    }: EventsWrapperRendererParams = wrapperProps;
+    }: EventsWrapperProps = wrapperProps;
     const classes: string[] = [DayCellClasses.DAY_CELL];
-    if (dateAreSame(cellDate, calendarReferenceDate, 'YYYYMMDD')) {
+    if (datesAreSame(cellDate, calendarReferenceDate, 'YYYYMMDD')) {
         classes.push(DayCellClasses.CALENDAR_REFERENCE_DAY);
     }
     if (rowIndex === 0) {
@@ -44,9 +43,8 @@ const DayCellWrapperForMonthView: EventsWrapperRenderer = wrapperProps => {
     if (columnIndex === 6) {
         classes.push(DayCellClasses.WEEK_LAST_DAY);
     }
-
     return (props: any = {}) =>
-        dateAreSame(calendarReferenceDate, cellDate, 'YYYYMM') ? (
+        datesAreSame(calendarReferenceDate, cellDate, 'YYYYMM') ? (
             <MonthCellContainer className={classes.join(' ')}>
                 <CellHeader>{cellDate.getDate()}</CellHeader>
                 <EventsListForMonthView>
@@ -58,4 +56,4 @@ const DayCellWrapperForMonthView: EventsWrapperRenderer = wrapperProps => {
         );
 };
 
-export default DayCellWrapperForMonthView;
+export default EventsWrapperForMonthView;

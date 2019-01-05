@@ -13,7 +13,7 @@ export const HeaderArea = styled.div`
     grid-area: app-header;
     position: relative;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 8rem 8rem 1fr;
     text-align: center;
     & > div {
         cursor: pointer;

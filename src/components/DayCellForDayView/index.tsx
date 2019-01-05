@@ -9,7 +9,7 @@ import {
 import {
     KTSCalendarProps,
     EventTime,
-    CalendarEvent
+    EventData
 } from 'Components/KTSCalendar/interfaces';
 import {
     DEFAULT_DAY_HOURS_RANGE_START,
@@ -18,7 +18,7 @@ import {
     DEFAULT_TIME_IN_ONE_BLOCK
 } from 'Common/constants';
 import { DEFAULT_DAYS_NAMES } from 'Components/KTSCalendar/constants';
-import { dateAreSame } from 'Common/utils';
+import { datesAreSame } from 'Common/utils';
 
 const DayCellForDayView = ({
     calendarProps,
@@ -36,7 +36,7 @@ const DayCellForDayView = ({
         view
     } = calendarProps;
 
-    const todayCell = dateAreSame(cellDate, new Date(), 'yyyyMMDD')
+    const todayCell = datesAreSame(cellDate, new Date(), 'yyyyMMDD')
         ? ' today-cell'
         : '';
     const totalBlocksInOneHour = 60 / timeFraction; // 12
@@ -48,21 +48,7 @@ const DayCellForDayView = ({
         events,
         columnsIndexesLastEndTime
     );
-
-    const renderBackgroundRows = (totalColumns: number) =>
-        new Array(totalHours).fill(1).map((a, i) => {
-            const rowStart = i * totalBlocksInOneHour + 1;
-            const rowEnd = rowStart + totalBlocksInOneHour;
-            return (
-                <GridBackgroundRow
-                    key={i}
-                    style={{
-                        gridRow: `${rowStart}/${rowEnd}`,
-                        gridColumn: '1/' + totalColumns
-                    }}
-                />
-            );
-        });
+    const totalColumns = columnsIndexesLastEndTime.length || 1;
 
     return (
         <DayCellsContainer
@@ -74,13 +60,17 @@ const DayCellForDayView = ({
                 styled={{
                     totalHours,
                     totalBlocksInOneHour,
-                    totalColumns: columnsIndexesLastEndTime.length || 1,
+                    totalColumns,
                     view
                     // gridColumnGap: '2px',
                     // gridRowGap: '2px'
                 }}
             >
-                {renderBackgroundRows(totalBlocksInOneHour)}
+                {renderBackgroundRows(
+                    totalColumns,
+                    totalHours,
+                    totalBlocksInOneHour
+                )}
                 {dayCellEventsWithColumnIndexex.map(
                     ({ event, columnIndex }, index) => {
                         const start =
@@ -114,20 +104,39 @@ const DayCellForDayView = ({
     );
 };
 
+const renderBackgroundRows = (
+    totalEventsColumns: number,
+    totalHours: number,
+    totalBlocksInOneHour: number
+) =>
+    new Array(totalHours).fill(1).map((a, i) => {
+        const rowStart = i * totalBlocksInOneHour + 1;
+        const rowEnd = rowStart + totalBlocksInOneHour;
+        return (
+            <GridBackgroundRow
+                key={i}
+                style={{
+                    gridRow: `${rowStart}/${rowEnd}`,
+                    gridColumn: '1/' + (totalEventsColumns + 2)
+                }}
+            />
+        );
+    });
+
 const getEventsWithColumnIndexes = (
     cellDate: Date,
-    evts: CalendarEvent[],
+    evts: EventData[],
     columnsIndexesLastEndTime: EventTime[]
 ) => {
     const events = evts
         .filter(e => {
-            return dateAreSame(e.date, cellDate, DEFAULT_DATE_FORMAT);
+            return datesAreSame(e.date, cellDate, DEFAULT_DATE_FORMAT);
         })
         .sort(({ date: d1 }, { date: d2 }) => {
             return d1.getTime() - d2.getTime();
         });
     const eventsWithColumnIndexes: Array<{
-        event: CalendarEvent;
+        event: EventData;
         columnIndex: number;
     }> = events.map(evt => {
         return {
@@ -140,7 +149,7 @@ const getEventsWithColumnIndexes = (
 };
 
 const getGridColumnIndex = (
-    { startTime: { hh, mm }, endTime: et }: CalendarEvent,
+    { startTime: { hh, mm }, endTime: et }: EventData,
     columnsIndexesLastEndTime: EventTime[]
 ) => {
     let index = columnsIndexesLastEndTime.findIndex(last => {

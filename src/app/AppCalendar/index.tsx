@@ -3,7 +3,7 @@ import KTSCalendar from 'Components/KTSCalendar';
 import {
     KTSCalendarProps,
     ViewType,
-    CalendarEvent
+    EventData
 } from 'Components/KTSCalendar/interfaces';
 import moment from 'moment';
 import { AppLayout, HeaderArea, FilterArea, CalendarArea } from './styled';
@@ -13,20 +13,20 @@ interface CalendarState {
     date: Date;
 }
 export default class AppCalendar extends React.Component<any, CalendarState> {
-    events: CalendarEvent[] = [
+    events: EventData[] = [
         {
             id: '1',
             startTime: { hh: 10, mm: 30 },
             endTime: { hh: 11, mm: 50 },
             title: 'propva_sdf_gdffg',
-            date: new Date()
+            date: new Date('2019/01/04')
         },
         {
             id: '2',
             startTime: { hh: 10, mm: 45 },
             endTime: { hh: 12, mm: 25 },
             title: 'propva_2_gkmn hhshd',
-            date: new Date()
+            date: new Date('2019/01/04')
         },
         {
             id: '3',
@@ -46,21 +46,25 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
     render() {
         const { date, view } = this.state;
         const props: KTSCalendarProps = {
-            weekStartAt: 'sunday',
+            weekStartFrom: 'sunday',
             events: this.events,
             view,
-            date
+            date,
+            navigation: {
+                onView: this.onViewChange,
+                onDate: d => this.setState({ date: d })
+            }
         };
         return (
             <AppLayout>
                 <FilterArea>Filter</FilterArea>
                 <HeaderArea>
                     <div onClick={this.onPrevious}>previous</div>
+                    <div onClick={this.onNext}>next</div>
                     <div style={buttonsStyle}>
                         <div>{date.toLocaleDateString()}</div>
                         {['month', 'week', 'day'].map(this.renderViewButton)}
                     </div>
-                    <div onClick={this.onNext}>next</div>
                 </HeaderArea>
                 <CalendarArea>
                     <KTSCalendar {...props} />

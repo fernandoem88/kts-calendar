@@ -6,7 +6,7 @@ export const KTSCalendarLayout = styled.div`
     height: 100%;
     display: grid;
     grid-template-columns: 4rem 1fr;
-    grid-template-rows: 4.2rem 1fr;
+    grid-template-rows: auto 1fr;
     grid-template-areas: 'grids-header grids-header' 'times-range calendar';
     &[data-view='month'] {
         grid-template-areas: 'grids-header grids-header' 'calendar calendar';
