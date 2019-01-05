@@ -1,14 +1,17 @@
 import styled from 'styled-components';
 
-export const DefaultEventForDayViewContainer = styled.div`
+export const DayViewDefaultEventContainer = styled.div`
     position: relative;
+    /* &[data-view='day'] {
+        width: 25rem;
+    } */
     background: ${props => props.color};
     height: 100%;
     overflow: auto;
     font-size: 1.2rem;
 `;
 
-export const DefaultEventForDayViewTitle = styled.div`
+export const DayViewDefaultEventTitle = styled.div`
     padding: 0.4rem;
     height: 2.4rem;
     & > span {
@@ -19,6 +22,6 @@ export const DefaultEventForDayViewTitle = styled.div`
     }
 `;
 
-export const DefaultEventForDayViewDescription = styled.div`
+export const DayViewDefaultEventDescription = styled.div`
     padding: 0.4rem;
 `;

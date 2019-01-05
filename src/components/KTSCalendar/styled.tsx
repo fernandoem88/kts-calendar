@@ -16,6 +16,7 @@ export const KTSCalendarLayout = styled.div`
 export const KTSCalendarArea = styled.div`
     grid-area: calendar;
     position: relative;
+    overflow: auto;
 `;
 
 const CGFMV = styled.div<{ styled: { rows: number } }>``;
@@ -35,8 +36,7 @@ const ATR = styled.div<{
 export const AsideTimesRange = styled(ATR)`
     grid-area: times-range;
     position: relative;
-    /* border-top: solid 1px #ccc; */
-    border-left: solid 1px #ccc;
+    /* border-left: solid 1px #ccc; */
     display: grid;
     grid-template-rows: repeat(${props => props.styled.totalHours}, 1fr);
     & > *:not(:first-child) {

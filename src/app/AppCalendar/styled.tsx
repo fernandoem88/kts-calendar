@@ -21,6 +21,7 @@ export const HeaderArea = styled.div`
 `;
 export const FilterArea = styled.div`
     grid-area: filter;
+    border-right: solid 1px #ccc;
 `;
 
 export const CalendarArea = styled.div`

@@ -12,7 +12,7 @@ interface DayCellColumnProps<V = ViewType> {
     };
 }
 
-export const DayCellsContainer = styled.div`
+export const DayCellWrapper = styled.div`
     position: relative;
     width: 100%;
     height: 100%;
@@ -23,16 +23,6 @@ export const DayCellsContainer = styled.div`
     &.today-cell {
         background: #edf8ff;
     }
-`;
-
-export const CellsBackground = styled.div`
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-template-columns: 1fr;
 `;
 const DCG = styled.div<DayCellColumnProps>``;
 export const DayCellGrid = styled(DCG)`
@@ -45,9 +35,8 @@ export const DayCellGrid = styled(DCG)`
         1fr
     );
     grid-template-columns:
-        repeat(${props => props.styled.totalColumns}, 'auto')
-        auto;
-    /* overflow-x: auto; */
+        repeat(${({ styled: st }) => st.totalColumns}, auto)
+        1fr;
     grid-row-gap: ${props => props.styled.gridRowGap || 0};
     grid-column-gap: ${props => props.styled.gridColumnGap || 0};
 `;
@@ -84,14 +73,4 @@ export const GridBackgroundRow = styled.div`
     &:hover {
         background: #edf8ff;
     }
-`;
-
-export const EventCardForDayView = styled.div`
-    /* min-width: 15rem; */
-    background: #365c84;
-    box-shadow: #363738 0px 2px 4px;
-    height: 100%;
-    position: relative;
-    padding: 4px;
-    color: white;
 `;

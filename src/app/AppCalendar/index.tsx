@@ -12,35 +12,50 @@ interface CalendarState {
     view: ViewType;
     date: Date;
 }
+const now = new Date();
 export default class AppCalendar extends React.Component<any, CalendarState> {
     events: EventData[] = [
         {
             id: '1',
             startTime: { hh: 10, mm: 30 },
             endTime: { hh: 11, mm: 50 },
-            title: 'propva_sdf_gdffg',
-            date: new Date('2019/01/04')
+            title: 'evento 1',
+            date: now
         },
         {
             id: '2',
             startTime: { hh: 10, mm: 45 },
             endTime: { hh: 12, mm: 25 },
-            title: 'propva_2_gkmn hhshd',
-            date: new Date('2019/01/04')
+            title: 'evento 2 hhshd',
+            date: now
         },
         {
             id: '3',
-            startTime: { hh: 10, mm: 45 },
-            endTime: { hh: 12, mm: 25 },
-            title: 'propva_3_plusdrg',
-            date: new Date('2018/12/31')
+            startTime: { hh: 14, mm: 45 },
+            endTime: { hh: 16, mm: 0 },
+            title: 'evento 3',
+            date: now
+        },
+        {
+            id: '4',
+            startTime: { hh: 13, mm: 45 },
+            endTime: { hh: 15, mm: 0 },
+            title: 'evento 4',
+            date: now
+        },
+        {
+            id: '5',
+            startTime: { hh: 13, mm: 45 },
+            endTime: { hh: 14, mm: 40 },
+            title: 'evento 5',
+            date: now
         }
     ];
     constructor(props: any) {
         super(props);
         this.state = {
             view: 'month',
-            date: new Date()
+            date: now
         };
     }
     render() {
@@ -52,7 +67,7 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
             date,
             navigation: {
                 onView: this.onViewChange,
-                onDate: d => this.setState({ date: d })
+                onDate: this.onDate
             }
         };
         return (
@@ -61,8 +76,15 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
                 <HeaderArea>
                     <div onClick={this.onPrevious}>previous</div>
                     <div onClick={this.onNext}>next</div>
-                    <div style={buttonsStyle}>
+                    <div
+                        style={{
+                            display: 'grid',
+                            textAlign: 'center',
+                            gridTemplateColumns: ' 3fr repeat(4, 1fr)'
+                        }}
+                    >
                         <div>{date.toLocaleDateString()}</div>
+                        <div onClick={() => this.onDate(new Date())}>today</div>
                         {['month', 'week', 'day'].map(this.renderViewButton)}
                     </div>
                 </HeaderArea>
@@ -72,6 +94,11 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
             </AppLayout>
         );
     }
+
+    onDate = (d: Date) => {
+        console.log('onDate');
+        this.setState({ date: d });
+    };
 
     renderViewButton = (view: ViewType) => (
         <div key={view} onClick={() => this.onViewChange(view)}>
@@ -98,14 +125,3 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
     onNext = () => this.navigate('next');
     onPrevious = () => this.navigate('previous');
 }
-
-const containerStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    textAlign: 'center'
-};
-
-const buttonsStyle: React.CSSProperties = {
-    ...containerStyle,
-    gridTemplateColumns: ' 3fr repeat(3, 1fr)'
-};

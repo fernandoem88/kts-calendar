@@ -5,7 +5,8 @@ import {
     EventData,
     EventsWrapperProps,
     EventProps,
-    CalendarHeaderParams
+    CalendarHeaderParams,
+    RFC
 } from './interfaces';
 import moment from 'moment';
 import {
@@ -27,7 +28,6 @@ import DayCellForDayView from 'Components/DayCellForDayView';
 import CalendarHeader from 'Components/CalendarHeader';
 
 type OwnProps = KTSCalendarProps;
-type RFC<T = any> = React.FunctionComponent<T>;
 export default class KTSCalendar extends React.Component<OwnProps> {
     static defaultProps: Partial<OwnProps> = {
         daysNames: DEFAULT_DAYS_NAMES,
@@ -69,7 +69,10 @@ export default class KTSCalendar extends React.Component<OwnProps> {
                         const rowEnd = rowStart + 12;
                         const gridRow = `${rowStart}/${rowEnd}`;
                         return (
-                            <div key={h + i} style={{ gridRow }}>
+                            <div
+                                key={h + i}
+                                style={{ gridRow, padding: '0 4px' }}
+                            >
                                 {h + i}
                             </div>
                         );
@@ -83,11 +86,15 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         const { view, date } = this.props;
         switch (view) {
             case 'month':
-                return this.renderGridForMonthView();
-            case 'day':
-                return this.renderGridForDayView(date);
+                return this.renderMonthGrid();
+            case 'day': {
+                const eventsWrapperProps = this.eventsWrapperPropsGenerator()(
+                    date
+                );
+                return this.renderDayGrid(eventsWrapperProps);
+            }
             case 'week':
-                return this.renderGridForWeekView();
+                return this.renderWeekGrid();
             default:
                 return null;
         }
@@ -136,12 +143,14 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         return <CalendarHeader {...params} />;
     };
 
-    renderGridForDayView = (cellDate: Date) => {
+    renderDayGrid = (eventsWrapperProps: EventsWrapperProps) => {
+        const { cellDate, cellEvents } = eventsWrapperProps;
         const frmt = moment(cellDate).format('DD-MM-YYYY');
         return (
             <DayCellForDayView
                 key={frmt}
                 cellDate={cellDate}
+                cellEvents={cellEvents}
                 calendarProps={this.props}
             />
         );
@@ -167,12 +176,14 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         return <div key={event.date.getTime()}>event</div>;
     };
 
-    renderGridForMonthView = () => {
+    /**
+     * @description render the grid layout for month view
+     */
+    renderMonthGrid = () => {
         const { weeks, startDate, endDate } = this.getMonthViewDateRange();
         const dates = this.generateDatesInDateRange(startDate, endDate);
-        const eventsWrapperPropsgenerator = this.eventsWrapperPropsGenerator();
+        const eventsWrapperPropsGenerator = this.eventsWrapperPropsGenerator();
         const CellWrapper = this.renderEventsWrapperForMonthView;
-
         return (
             <CalendarGridForMonthView
                 className="grid-for-monthView calendar-grid"
@@ -180,7 +191,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
                 key="calendar-grid"
             >
                 {dates.map((cellDate, i) => {
-                    const dayCellProps = eventsWrapperPropsgenerator(cellDate);
+                    const dayCellProps = eventsWrapperPropsGenerator(cellDate);
                     return (
                         <CellWrapper
                             key={cellDate.getTime()}
@@ -193,9 +204,8 @@ export default class KTSCalendar extends React.Component<OwnProps> {
     };
 
     renderEventsWrapperForMonthView: RFC<EventsWrapperProps> = params => {
-        const { calendarReferenceDate, cellEvents, navigation, view } = params;
-
-        const { components } = this.props;
+        const { calendarReferenceDate, cellEvents, navigation } = params;
+        const { components, view } = this.props;
         const getInput = (e: EventData) => ({
             calendarReferenceDate,
             event: e,
@@ -216,7 +226,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         const renderEvents = () =>
             cellEvents.map(e => renderEvent(getInput(e)));
 
-        if (components && components.renderEventsWrapper) {
+        if (view === 'month' && components && components.renderEventsWrapper) {
             const Wrapper = components.renderEventsWrapper(params);
             return <Wrapper>{renderEvents()}</Wrapper>;
         }
@@ -224,9 +234,13 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         return <DefaultWrapper>{renderEvents()}</DefaultWrapper>;
     };
 
-    public renderGridForWeekView = () => {
+    /**
+     * @description render the grid layout for week view
+     */
+    public renderWeekGrid = () => {
         const { date } = this.props;
         const { startDate } = this.getWeekViewDateRange(date);
+        const eventsWrapperPropsGenerator = this.eventsWrapperPropsGenerator();
         const monday = moment(startDate).set({
             hours: 0,
             minute: 0,
@@ -243,6 +257,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
 
         return (
             <div
+                className="grid-container week-view-grid"
                 style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(7, 1fr)',
@@ -250,26 +265,38 @@ export default class KTSCalendar extends React.Component<OwnProps> {
                     height: '100%'
                 }}
             >
-                {dates.map(this.renderGridForDayView)}
+                {dates.map(d => {
+                    const eventsWrapperProps = eventsWrapperPropsGenerator(d);
+                    return this.renderDayGrid(eventsWrapperProps);
+                })}
             </div>
         );
     };
 
     private eventsWrapperPropsGenerator = () => {
-        const { weeks, startDate, endDate } = this.getMonthViewDateRange();
         const { date, view } = this.props;
+        const { weeks, startDate, endDate } =
+            view === 'month'
+                ? this.getMonthViewDateRange()
+                : view === 'week'
+                ? this.getWeekViewDateRange(date)
+                : { endDate: date, startDate: date, weeks: 1 };
         const today = new Date();
-        const dates = this.generateDatesInDateRange(startDate, endDate);
+        const dates =
+            view === 'day'
+                ? [date]
+                : this.generateDatesInDateRange(startDate, endDate);
         const events = this.getEventsInRange(startDate, endDate);
         return (cellDate: Date) => {
+            const cellEvents = this.findDayEvents(events, cellDate);
+            const isInSelectedMonth = datesAreSame(date, cellDate, 'YYYYMM');
+            const isTodayDate = datesAreSame(today, cellDate, 'YYYYMMDD');
             const index = dates.findIndex(d =>
                 datesAreSame(d, cellDate, 'YYYYMMDD')
             );
-            const cellEvents = this.findDayEvents(events, cellDate);
             const rowIndex = parseInt(`${index / 7}` + '', 10);
             const columnIndex = index % 7;
-            const isInSelectedMonth = datesAreSame(date, cellDate, 'YYYYMM');
-            const isTodayDate = datesAreSame(today, cellDate, 'YYYYMMDD');
+
             const eventsWrapperProps: EventsWrapperProps = {
                 calendarReferenceDate: date,
                 cellDate,
@@ -320,12 +347,30 @@ export default class KTSCalendar extends React.Component<OwnProps> {
                 'DD/MM/YYYY HH:mm'
             )} - ${endDate.format('DD/MM/YYYY HH:mm')}`
         );
-        return events.filter(e => {
-            const date = moment(e.date);
-            return (
-                date.isSameOrAfter(startDate) && date.isSameOrBefore(endDate)
+        return events
+            .filter(e => {
+                const date = moment(e.date);
+                return (
+                    date.isSameOrAfter(startDate) &&
+                    date.isSameOrBefore(endDate)
+                );
+            })
+            .sort(
+                (
+                    { startTime: st1, endTime: et1 },
+                    { startTime: st2, endTime: et2 }
+                ) => {
+                    const s1 = st1.hh * 60 + st1.mm;
+                    const s2 = st2.hh * 60 + st2.mm;
+                    if (s1 === s2) {
+                        const e1 = et1.hh * 60 + et1.mm;
+                        const e2 = et2.hh * 60 + et2.mm;
+                        return e1 - e2;
+                    } else {
+                        return s1 - s2;
+                    }
+                }
             );
-        });
     };
 
     /**

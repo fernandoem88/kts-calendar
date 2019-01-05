@@ -1,15 +1,16 @@
 import * as React from 'react';
 import {
-    DayCellsContainer,
+    DayCellWrapper,
     DayCellGrid,
     GridRowFractionForDayView,
-    GridBackgroundRow,
-    EventCardForDayView
+    GridBackgroundRow
 } from './styled';
 import {
     KTSCalendarProps,
     EventTime,
-    EventData
+    EventData,
+    RFC,
+    EventProps
 } from 'Components/KTSCalendar/interfaces';
 import {
     DEFAULT_DAY_HOURS_RANGE_START,
@@ -19,19 +20,22 @@ import {
 } from 'Common/constants';
 import { DEFAULT_DAYS_NAMES } from 'Components/KTSCalendar/constants';
 import { datesAreSame } from 'Common/utils';
+import DayViewDefaultEvent from 'Components/DefaultEventForDayView';
 
-const DayCellForDayView = ({
-    calendarProps,
-    cellDate
-}: {
+const DayCellForDayView: RFC<{
     cellDate: Date;
+    cellEvents: EventData[];
     calendarProps: KTSCalendarProps;
-}) => {
+}> = ({ calendarProps, cellDate, cellEvents }) => {
     const {
+        components,
+        date,
         dayEndHour = DEFAULT_DAY_HOURS_RANGE_END,
         dayStartHour = DEFAULT_DAY_HOURS_RANGE_START,
         daysNames = DEFAULT_DAYS_NAMES,
-        events,
+        eventCategories,
+        // events,
+        navigation,
         timeFraction = DEFAULT_TIME_IN_ONE_BLOCK,
         view
     } = calendarProps;
@@ -45,25 +49,26 @@ const DayCellForDayView = ({
     const columnsIndexesLastEndTime: EventTime[] = [];
     const dayCellEventsWithColumnIndexex = getEventsWithColumnIndexes(
         cellDate,
-        events,
+        cellEvents,
         columnsIndexesLastEndTime
     );
     const totalColumns = columnsIndexesLastEndTime.length || 1;
-
+    const renderEvent =
+        components && components.renderEvent && view === 'day'
+            ? components.renderEvent
+            : DayViewDefaultEvent;
     return (
-        <DayCellsContainer
+        <DayCellWrapper
             key={dayName}
-            className={'day-cells-container' + todayCell}
+            className={'events-wrapper day-view-events-wrapper' + todayCell}
         >
             <DayCellGrid
-                className="day-events-wrapper"
+                className="day-cell"
                 styled={{
                     totalHours,
                     totalBlocksInOneHour,
                     totalColumns,
                     view
-                    // gridColumnGap: '2px',
-                    // gridRowGap: '2px'
                 }}
             >
                 {renderBackgroundRows(
@@ -83,6 +88,14 @@ const DayCellForDayView = ({
                             (start - dayStartHour * 60) /
                             DEFAULT_TIME_IN_ONE_BLOCK;
 
+                        const eventsProps: EventProps = {
+                            calendarReferenceDate: date,
+                            event,
+                            eventCategories,
+                            navigation,
+                            view
+                        };
+
                         return (
                             <GridRowFractionForDayView
                                 key={index}
@@ -92,15 +105,13 @@ const DayCellForDayView = ({
                                     totalRowsFractions
                                 }}
                             >
-                                <EventCardForDayView>
-                                    {event.title}
-                                </EventCardForDayView>
+                                {renderEvent(eventsProps)}
                             </GridRowFractionForDayView>
                         );
                     }
                 )}
             </DayCellGrid>
-        </DayCellsContainer>
+        </DayCellWrapper>
     );
 };
 
@@ -108,8 +119,8 @@ const renderBackgroundRows = (
     totalEventsColumns: number,
     totalHours: number,
     totalBlocksInOneHour: number
-) =>
-    new Array(totalHours).fill(1).map((a, i) => {
+) => {
+    return new Array(totalHours).fill(1).map((a, i) => {
         const rowStart = i * totalBlocksInOneHour + 1;
         const rowEnd = rowStart + totalBlocksInOneHour;
         return (
@@ -119,9 +130,11 @@ const renderBackgroundRows = (
                     gridRow: `${rowStart}/${rowEnd}`,
                     gridColumn: '1/' + (totalEventsColumns + 2)
                 }}
+                className="day-cell-background"
             />
         );
     });
+};
 
 const getEventsWithColumnIndexes = (
     cellDate: Date,

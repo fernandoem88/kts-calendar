@@ -125,8 +125,9 @@ export type Event<
 
 export interface EventProps<E extends EventData = EventData, V = ViewType> {
     calendarReferenceDate: Date;
-    cellEvents: E[];
+    // cellEvents: E[];
     event: E;
+    eventCategories?: EventCategory[];
     navigation?: EventNavigation<V>;
     view: V;
 }
@@ -157,8 +158,9 @@ export interface KTSCalendarProps<
     E extends EventData = EventData,
     V = ViewType
 > {
-    events: E[];
     date: Date;
+    eventCategories?: EventCategory[];
+    events: E[];
     view: V;
     timeFraction?: 1 | 5 | 10 | 15 | 30;
     // views?: keyof (V);
@@ -221,3 +223,5 @@ export enum DayCellClasses {
     TODAY_CELL = 'today-cell',
     CALENDAR_REFERENCE_DAY = 'same-as-calendar-reference-date'
 }
+
+export type RFC<T = {}> = React.FunctionComponent<T>;

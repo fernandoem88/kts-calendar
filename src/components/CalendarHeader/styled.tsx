@@ -6,7 +6,7 @@ export const CalendarHeaderContainer = styled.div`
     display: grid;
     height: 4.2rem;
     line-height: 4.2rem;
-    border-bottom: solid 1px #999999;
+    border-bottom: solid 1px #cccccc;
     background: #bcd6e6;
     grid-template-columns: ${props =>
         `repeat(${React.Children.count(props.children)}, 1fr)`};
