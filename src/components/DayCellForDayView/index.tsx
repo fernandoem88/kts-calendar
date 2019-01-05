@@ -80,7 +80,10 @@ const DayCellForDayView: RFC<{
                     ({ event, columnIndex }, index) => {
                         const start =
                             event.startTime.hh * 60 + event.startTime.mm;
-                        const end = event.endTime.hh * 60 + event.endTime.mm;
+                        let end = event.endTime.hh * 60 + event.endTime.mm;
+                        if (event.endTime.hh > dayEndHour) {
+                            end = dayEndHour * 60;
+                        }
 
                         const totalRowsFractions =
                             (end - start) / DEFAULT_TIME_IN_ONE_BLOCK;

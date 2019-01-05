@@ -330,7 +330,11 @@ export default class KTSCalendar extends React.Component<OwnProps> {
     };
 
     private getEventsInRange = (start: Date, end: Date) => {
-        const { events } = this.props;
+        const {
+            events,
+            dayStartHour = DEFAULT_DAY_HOURS_RANGE_START,
+            dayEndHour = DEFAULT_DAY_HOURS_RANGE_END
+        } = this.props;
         const startDate = moment(start).set({
             hours: 0,
             minutes: 0,
@@ -350,9 +354,12 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         return events
             .filter(e => {
                 const date = moment(e.date);
+                const startTime = e.startTime.hh;
                 return (
                     date.isSameOrAfter(startDate) &&
-                    date.isSameOrBefore(endDate)
+                    date.isSameOrBefore(endDate) &&
+                    startTime >= dayStartHour &&
+                    startTime < dayEndHour
                 );
             })
             .sort(

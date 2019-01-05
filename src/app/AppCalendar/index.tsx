@@ -49,6 +49,20 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
             endTime: { hh: 14, mm: 40 },
             title: 'evento 5',
             date: now
+        },
+        {
+            id: '6',
+            startTime: { hh: 11, mm: 30 },
+            endTime: { hh: 15, mm: 30 },
+            title: 'evento 6',
+            date: now
+        },
+        {
+            id: '7',
+            startTime: { hh: 19, mm: 30 },
+            endTime: { hh: 20, mm: 30 },
+            title: 'evento 7',
+            date: now
         }
     ];
     constructor(props: any) {

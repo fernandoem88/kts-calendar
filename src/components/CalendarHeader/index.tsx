@@ -39,7 +39,7 @@ const getOnClick = (
     view: ViewType,
     navigation: CalendarHeaderParams['navigation']
 ) => {
-    if (view === 'day' || !navigation) {
+    if (view !== 'week' || !navigation) {
         return undefined;
     }
     return () => {

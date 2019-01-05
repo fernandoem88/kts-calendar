@@ -43,17 +43,45 @@ const EventsWrapperForMonthView: EventsWrapper = wrapperProps => {
     if (columnIndex === 6) {
         classes.push(DayCellClasses.WEEK_LAST_DAY);
     }
+
+    const setViewAndDate = getOnClick(wrapperProps);
+
     return (props: any = {}) =>
         datesAreSame(calendarReferenceDate, cellDate, 'YYYYMM') ? (
             <MonthCellContainer className={classes.join(' ')}>
-                <CellHeader>{cellDate.getDate()}</CellHeader>
+                <CellHeader onClick={setViewAndDate}>
+                    {cellDate.getDate()}
+                </CellHeader>
                 <EventsListForMonthView>
                     {props.children || null}
                 </EventsListForMonthView>
             </MonthCellContainer>
         ) : (
-            <MonthCellContainer className={classes.join(' ')} />
+            <MonthCellContainer
+                className={classes.join(' ')}
+                onClick={setViewAndDate}
+            />
         );
+};
+
+const getOnClick = ({ navigation, cellDate }: EventsWrapperProps) => {
+    const onDate =
+        navigation && navigation.onDate ? navigation.onDate : undefined;
+    const onView =
+        navigation && navigation.onView ? navigation.onView : undefined;
+    if (!onDate && !onView) {
+        return undefined;
+    }
+
+    const setViewAndDate = () => {
+        if (onDate) {
+            onDate(cellDate);
+        }
+        if (onView) {
+            onView('day');
+        }
+    };
+    return setViewAndDate;
 };
 
 export default EventsWrapperForMonthView;
