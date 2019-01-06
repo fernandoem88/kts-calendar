@@ -45,7 +45,8 @@ export type Range24 =
     | 20
     | 21
     | 22
-    | 23;
+    | 23
+    | 24;
 export type Range31 = Exclude<Range24, 0> | 25 | 26 | 27 | 28 | 29 | 30 | 31;
 export type Range60 =
     | 0
@@ -162,7 +163,7 @@ export interface KTSCalendarProps<
     eventCategories?: EventCategory[];
     events: E[];
     view: V;
-    timeFraction?: 1 | 5 | 10 | 15 | 30;
+    timeFraction?: 1 | 5;
     // views?: keyof (V);
     daysNames?: DaysArray;
     dayStartHour?: Range24;

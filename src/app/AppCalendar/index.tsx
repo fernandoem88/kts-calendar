@@ -82,7 +82,9 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
             navigation: {
                 onView: this.onViewChange,
                 onDate: this.onDate
-            }
+            },
+            dayStartHour: 8,
+            dayEndHour: 20
         };
         return (
             <AppLayout>
