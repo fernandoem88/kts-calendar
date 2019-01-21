@@ -26,6 +26,9 @@ import { datesAreSame } from 'Common/utils';
 import EventsWrapperForMonthView from 'Components/EventsWrapperForMonthView';
 import DayCellForDayView from 'Components/DayCellForDayView';
 import CalendarHeader from 'Components/CalendarHeader';
+import DefaultEventForMonthView, {
+    DefaultEventForMonthViewProps
+} from 'Components/DefaulEventForMonthView';
 
 type OwnProps = KTSCalendarProps;
 export default class KTSCalendar extends React.Component<OwnProps> {
@@ -203,6 +206,14 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         );
     };
 
+    renderDefaultEventForMonthView = ({ event }: EventProps) => {
+        const props: DefaultEventForMonthViewProps = {
+            eventCategories: [],
+            eventData: event
+        };
+        return <DefaultEventForMonthView {...props} />;
+    };
+
     renderEventsWrapperForMonthView: RFC<EventsWrapperProps> = params => {
         const { calendarReferenceDate, cellEvents, navigation } = params;
         const { components, view } = this.props;
@@ -217,11 +228,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
         const renderEvent =
             components && components.renderEvent
                 ? components.renderEvent
-                : ({ event }: EventProps) => (
-                      <div key={event.date.getTime() + event.title}>
-                          {event.title}
-                      </div>
-                  );
+                : this.renderDefaultEventForMonthView;
 
         const renderEvents = () =>
             cellEvents.map(e => renderEvent(getInput(e)));

@@ -102,6 +102,7 @@ export type CalendarHeaderParams = {
 export interface EventCategory {
     id: string;
     color: string;
+    name: string;
 }
 
 export interface EventDate {

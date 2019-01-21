@@ -1,3 +1,5 @@
+import { EventCategory } from './interfaces';
+
 export const DEFAULT_MONTHS_NAMES: [
     string,
     string,
@@ -43,3 +45,9 @@ export const DEFAULT_DAYS_NAMES: [
     'friday',
     'saturday'
 ];
+
+export const KTS_DEFAULT_CATEGORY: EventCategory = {
+    color: '#000000',
+    id: '__default_category_id__',
+    name: 'Default'
+};
