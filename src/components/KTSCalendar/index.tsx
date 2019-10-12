@@ -45,6 +45,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
 
     render() {
         const { view } = this.props;
+
         return (
             <KTSCalendarLayout data-view={view}>
                 {this.renderAsideTimesRange()}

@@ -7,6 +7,9 @@ import {
 } from 'Components/KTSCalendar/interfaces';
 import moment from 'moment';
 import { AppLayout, HeaderArea, FilterArea, CalendarArea } from './styled';
+// import SnapshotSwipper, {
+//     SnapshotSwipperProps
+// } from 'Components/SnapshotSwipper';
 
 interface CalendarState {
     view: ViewType;
@@ -86,6 +89,12 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
             dayStartHour: 8,
             dayEndHour: 20
         };
+        // const snapshotSwipperProps: SnapshotSwipperProps<KTSCalendarProps> = {
+        //     wrappedElementProps: props,
+        //     animation: 'scale-up',
+        //     shouldAnimateOnPropsChange: (p1, p2) => p1.view !== p2.view,
+        //     duration: 300
+        // };
         return (
             <AppLayout>
                 <FilterArea>Filter</FilterArea>
@@ -105,7 +114,9 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
                     </div>
                 </HeaderArea>
                 <CalendarArea>
+                    {/* <SnapshotSwipper {...snapshotSwipperProps}> */}
                     <KTSCalendar {...props} />
+                    {/* </SnapshotSwipper> */}
                 </CalendarArea>
             </AppLayout>
         );
