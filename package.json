@@ -1,29 +1,33 @@
 {
-  "name": "kts-calendar",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "react": "^16.7.0",
-    "react-dom": "^16.7.0",
-    "react-router-dom": "^4.3.1",
-    "react-scripts-ts": "3.1.0",
-    "styled-components": "^4.1.3"
-  },
-  "scripts": {
-    "start": "react-scripts-ts start",
-    "build": "react-scripts-ts build",
-    "test": "react-scripts-ts test --env=jsdom",
-    "eject": "react-scripts-ts eject"
-  },
-  "devDependencies": {
-    "@types/jest": "^23.3.10",
-    "@types/node": "^10.12.18",
-    "@types/react": "^16.7.18",
-    "@types/react-dom": "^16.0.11",
-    "@types/react-redux": "^6.0.11",
-    "@types/react-router-dom": "^4.3.1",
-    "@types/styled-components": "^4.1.4",
-    "moment": "^2.23.0",
-    "typescript": "^3.2.2"
-  }
+    "name": "kts-calendar",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "gh-pages": "^2.1.1",
+        "react": "^16.7.0",
+        "react-dom": "^16.7.0",
+        "react-router-dom": "^4.3.1",
+        "react-scripts-ts": "3.1.0",
+        "styled-components": "^4.1.3"
+    },
+    "scripts": {
+        "start": "react-scripts-ts start",
+        "build": "react-scripts-ts build",
+        "test": "react-scripts-ts test --env=jsdom",
+        "eject": "react-scripts-ts eject",
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d build"
+    },
+    "devDependencies": {
+        "@types/jest": "^23.3.10",
+        "@types/node": "^10.12.18",
+        "@types/react": "^16.7.18",
+        "@types/react-dom": "^16.0.11",
+        "@types/react-redux": "^6.0.11",
+        "@types/react-router-dom": "^4.3.1",
+        "@types/styled-components": "^4.1.4",
+        "moment": "^2.23.0",
+        "typescript": "^3.2.2"
+    },
+    "homepage": "https://github.com/fernandoem88/kts-calendar"
 }
