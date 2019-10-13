@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { DayCellClasses } from 'Components/KTSCalendar/interfaces';
 
 export const DayViewDefaultEventContainer = styled.div`
     position: relative;
@@ -19,6 +20,9 @@ export const DayViewDefaultEventTitle = styled.div`
         &.value {
             font-weight: 600;
         }
+    }
+    ${DayViewDefaultEventContainer}.${DayCellClasses.PAST_EVENT_CELL} & {
+        text-decoration: line-through;
     }
 `;
 

@@ -1,5 +1,7 @@
 import styled, { keyframes } from 'styled-components';
 import { COLORS } from 'Common/css-constants';
+import { MonthCellContainer } from 'Components/EventsWrapperForMonthView/styled';
+import { DayCellClasses } from 'Components/KTSCalendar/interfaces';
 
 const enterKeyframe = keyframes`
     0% { transform: translateY(-1rem); opacity: 0}
@@ -129,6 +131,9 @@ export const DefaultEventDescriptionMonthView = styled.div`
         max-width: 70%;
         overflow: hidden;
         vertical-align: middle;
+    }
+    ${MonthCellContainer}.${DayCellClasses.PAST_EVENT_CELL} & .description{
+        text-decoration: line-through;
     }
     &:hover {
         & .description {

@@ -223,7 +223,8 @@ export enum DayCellClasses {
     WEEK_LAST_DAY = 'week-last-day',
     IN_SELECTED_MONTH = 'in-selected-month',
     TODAY_CELL = 'today-cell',
-    CALENDAR_REFERENCE_DAY = 'same-as-calendar-reference-date'
+    CALENDAR_REFERENCE_DAY = 'same-as-calendar-reference-date',
+    PAST_EVENT_CELL = 'past-event-cell'
 }
 
 export type RFC<T = {}> = React.FunctionComponent<T>;

@@ -10,6 +10,7 @@ import {
     CellHeader,
     EventsListForMonthView
 } from './styled';
+import moment from 'moment';
 
 const EventsWrapperForMonthView: EventsWrapper = wrapperProps => {
     const {
@@ -21,7 +22,11 @@ const EventsWrapperForMonthView: EventsWrapper = wrapperProps => {
         rowIndex,
         weeks
     }: EventsWrapperProps = wrapperProps;
+    const now = new Date();
     const classes: string[] = [DayCellClasses.DAY_CELL];
+    if (moment(cellDate).isBefore(now, 'day')) {
+        classes.push(DayCellClasses.PAST_EVENT_CELL);
+    }
     if (datesAreSame(cellDate, calendarReferenceDate, 'YYYYMMDD')) {
         classes.push(DayCellClasses.CALENDAR_REFERENCE_DAY);
     }

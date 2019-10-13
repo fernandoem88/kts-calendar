@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { COLORS } from 'Common/css-constants';
 
 export const AppLayout = styled.div`
     position: relative;
@@ -13,17 +14,46 @@ export const HeaderArea = styled.div`
     grid-area: app-header;
     position: relative;
     display: grid;
-    grid-template-columns: 8rem 8rem 1fr;
+    grid-template-columns: 9rem 9rem 9rem 1fr;
     text-align: center;
-    & > div {
-        cursor: pointer;
-    }
 `;
 export const FilterArea = styled.div`
     grid-area: filter;
-    border-right: solid 1px #ccc;
+    border-right: solid 1px ${COLORS.$cc_grey_ccc};
 `;
 
 export const CalendarArea = styled.div`
     grid-area: calendar;
 `;
+
+export const NavBtn = styled.span.attrs({ className: 'SC-NavBtn' as string })`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 3px;
+    font-size: 11px;
+    color: ${COLORS.$cc_grey_777};
+
+    & > * {
+        border: solid 1px ${COLORS.$cc_grey_ccc};
+        cursor: pointer;
+        border-radius: 21px;
+        flex-grow: 1;
+        height: 30px;
+        line-height: 30px;
+        padding: 0 6px;
+        transition: 0.2s;
+        cursor: pointer;
+        &.selected {
+            background: ${COLORS.$cc_light_blue};
+            pointer-events: none;
+        }
+    }
+    &:hover > :not(.selected) {
+        border: solid 1px ${COLORS.$cc_light_blue_dark};
+        background: ${COLORS.$cc_light_blue};
+        color: ${COLORS.$cc_light_blue_dark};
+        font-weight: bold;
+    }
+`;
+NavBtn.displayName = 'NavBtn';

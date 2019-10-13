@@ -196,12 +196,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
             >
                 {dates.map((cellDate, i) => {
                     const dayCellProps = eventsWrapperPropsGenerator(cellDate);
-                    return (
-                        <CellWrapper
-                            key={cellDate.getTime()}
-                            {...dayCellProps}
-                        />
-                    );
+                    return <CellWrapper key={i} {...dayCellProps} />;
                 })}
             </CalendarGridForMonthView>
         );
@@ -212,7 +207,7 @@ export default class KTSCalendar extends React.Component<OwnProps> {
             eventCategories: [],
             eventData: event
         };
-        return <DefaultEventForMonthView {...props} />;
+        return <DefaultEventForMonthView {...props} key={event.id} />;
     };
 
     renderEventsWrapperForMonthView: RFC<EventsWrapperProps> = params => {

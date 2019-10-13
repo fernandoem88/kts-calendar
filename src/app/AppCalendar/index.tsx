@@ -6,7 +6,13 @@ import {
     EventData
 } from 'Components/KTSCalendar/interfaces';
 import moment from 'moment';
-import { AppLayout, HeaderArea, FilterArea, CalendarArea } from './styled';
+import {
+    AppLayout,
+    HeaderArea,
+    FilterArea,
+    CalendarArea,
+    NavBtn
+} from './styled';
 // import SnapshotSwipper, {
 //     SnapshotSwipperProps
 // } from 'Components/SnapshotSwipper';
@@ -16,60 +22,85 @@ interface CalendarState {
     date: Date;
 }
 const now = new Date();
+const DAY_MS = 24 * 60 * 60 * 1000;
+const yesterday = new Date(now.getTime() - DAY_MS);
+const tomorrow = new Date(now.getTime() + DAY_MS);
 export default class AppCalendar extends React.Component<any, CalendarState> {
     events: EventData[] = [
+        {
+            id: 'tomorrow',
+            startTime: { hh: 13, mm: 30 },
+            endTime: { hh: 15, mm: 50 },
+            title: 'tomorrow event',
+            date: tomorrow
+        },
+        {
+            id: 'yesterday',
+            startTime: { hh: 9, mm: 30 },
+            endTime: { hh: 13, mm: 20 },
+            title: 'yesterday event',
+            date: yesterday
+        },
+        {
+            id: 'yesterday-1',
+            startTime: { hh: 12, mm: 30 },
+            endTime: { hh: 14, mm: 50 },
+            title: 'yesterday event 2',
+            date: yesterday
+        },
         {
             id: '1',
             startTime: { hh: 10, mm: 30 },
             endTime: { hh: 11, mm: 50 },
-            title: 'evento 1',
+            title: 'event 1',
             date: now
         },
         {
             id: '2',
             startTime: { hh: 10, mm: 45 },
             endTime: { hh: 12, mm: 25 },
-            title: 'evento 2 hhshd',
+            title: 'event 2',
             date: now
         },
         {
             id: '3',
             startTime: { hh: 14, mm: 45 },
             endTime: { hh: 16, mm: 0 },
-            title: 'evento 3',
+            title: 'event 3',
             date: now
         },
         {
             id: '4',
             startTime: { hh: 13, mm: 45 },
             endTime: { hh: 15, mm: 0 },
-            title: 'evento 4',
+            title: 'long event label',
             date: now
         },
         {
             id: '5',
             startTime: { hh: 13, mm: 45 },
             endTime: { hh: 14, mm: 40 },
-            title: 'evento 5',
+            title: 'event 5',
             date: now
         },
         {
             id: '6',
             startTime: { hh: 11, mm: 30 },
             endTime: { hh: 15, mm: 30 },
-            title: 'evento 6',
+            title: 'event 6',
             date: now
         },
         {
             id: '7',
             startTime: { hh: 19, mm: 30 },
             endTime: { hh: 20, mm: 30 },
-            title: 'evento 7',
+            title: 'event 7',
             date: now
         }
     ];
     constructor(props: any) {
         super(props);
+
         this.state = {
             view: 'month',
             date: now
@@ -97,19 +128,25 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
         // };
         return (
             <AppLayout>
-                <FilterArea>Filter</FilterArea>
+                <FilterArea>Filters</FilterArea>
                 <HeaderArea>
-                    <div onClick={this.onPrevious}>previous</div>
-                    <div onClick={this.onNext}>next</div>
+                    <NavBtn>
+                        <div onClick={this.onPrevious}>previous</div>
+                    </NavBtn>
+                    <NavBtn onClick={() => this.onDate(new Date())}>
+                        <div>Today</div>
+                    </NavBtn>
+                    <NavBtn>
+                        <div onClick={this.onNext}>next</div>
+                    </NavBtn>
                     <div
                         style={{
                             display: 'grid',
                             textAlign: 'center',
-                            gridTemplateColumns: ' 3fr repeat(4, 1fr)'
+                            gridTemplateColumns: ' 3fr repeat(3, 1fr)'
                         }}
                     >
-                        <div>{date.toLocaleDateString()}</div>
-                        <div onClick={() => this.onDate(new Date())}>today</div>
+                        <NavBtn>{date.toLocaleDateString()}</NavBtn>
                         {['month', 'week', 'day'].map(this.renderViewButton)}
                     </div>
                 </HeaderArea>
@@ -123,14 +160,15 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
     }
 
     onDate = (d: Date) => {
-        console.log('onDate');
         this.setState({ date: d });
     };
 
-    renderViewButton = (view: ViewType) => (
-        <div key={view} onClick={() => this.onViewChange(view)}>
-            {view}
-        </div>
+    renderViewButton = (view: ViewType, index: number) => (
+        <NavBtn key={index} onClick={() => this.onViewChange(view)}>
+            <div className={this.state.view === view ? 'selected' : ''}>
+                {view}
+            </div>
+        </NavBtn>
     );
 
     onViewChange = (view: ViewType) => this.setState({ view });

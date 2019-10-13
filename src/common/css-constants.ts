@@ -4,8 +4,11 @@ export const COLORS = {
     $cc_grey_c3c: '#c3c3c3',
     $cc_grey_777: '#777777',
     $cc_grey_e8e: '#e8e8e8',
+    $cc_grey_f3f: '#f3f3f3',
     $cc_grey_faf: '#fafafa',
     $cc_orange: '#ffa500',
     $cc_red_fc1: '#ffc1c1',
-    $cc_white: '#ffffff'
+    $cc_white: '#ffffff',
+    $cc_light_blue: '#edf8ff',
+    $cc_light_blue_dark: '#bcd6e6'
 };

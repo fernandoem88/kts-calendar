@@ -5,7 +5,13 @@ import {
     DayViewDefaultEventTitle,
     DayViewDefaultEventDescription
 } from './styled';
-import { RFC, EventProps } from 'Components/KTSCalendar/interfaces';
+import {
+    RFC,
+    EventProps,
+    DayCellClasses
+} from 'Components/KTSCalendar/interfaces';
+
+const now = new Date();
 
 const DayViewDefaultEvent: RFC<EventProps> = ({
     event,
@@ -23,8 +29,16 @@ const DayViewDefaultEvent: RFC<EventProps> = ({
         hours: endTime.hh,
         minutes: endTime.mm
     });
+    const pastEvent = moment(event.date).isBefore(now, 'day')
+        ? DayCellClasses.PAST_EVENT_CELL
+        : '';
+
     return (
-        <DayViewDefaultEventContainer color={categoryColor} data-view={view}>
+        <DayViewDefaultEventContainer
+            color={categoryColor}
+            data-view={view}
+            className={pastEvent}
+        >
             <DayViewDefaultEventTitle className="eventTitle">
                 <span className="from title">From</span>
                 <span className="from value">

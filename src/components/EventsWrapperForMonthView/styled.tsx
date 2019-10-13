@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { DayCellClasses } from 'Components/KTSCalendar/interfaces';
+import { COLORS } from 'Common/css-constants';
 
 const {
     IN_SELECTED_MONTH,
@@ -19,13 +20,13 @@ export const MonthCellContainer = styled.div`
         border-bottom: solid 1px #cccccc;
     }
     &:not(.${IN_SELECTED_MONTH}) {
-        background: #f3f3f3;
+        background: ${COLORS.$cc_grey_f3f};
     }
     &.${TODAY_CELL}.${IN_SELECTED_MONTH} {
-        background: #edf8ff;
+        background: ${COLORS.$cc_light_blue}66;
     }
     &:hover.${IN_SELECTED_MONTH} {
-        background: #edf8ff;
+        background: ${COLORS.$cc_light_blue};
     }
 `;
 
@@ -36,6 +37,10 @@ export const CellHeader = styled.div`
     ${MonthCellContainer}.${CALENDAR_REFERENCE_DAY} & {
         color: #08de3f;
         font-weight: 600;
+    }
+    cursor: pointer;
+    &:hover {
+        background: ${COLORS.$cc_light_blue_dark};
     }
 `;
 
