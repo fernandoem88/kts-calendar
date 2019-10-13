@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
+// import { BrowserRouter } from 'react-router-dom';
 // import { Provider } from 'react-redux';
 // import { combinedReducers } from 'Reducers/combined-reducers';
 import './index.css';
@@ -21,11 +21,8 @@ import AppCalendar from 'App/AppCalendar';
 //     enhancer(applyMiddleware(thunk))
 // );
 ReactDOM.render(
-    <BrowserRouter basename="/">
-        {/* <Provider store={store}> */}
-        {/* <Routes /> */}
-        {/* </Provider> */}
-        <AppCalendar />
-    </BrowserRouter>,
+    // <BrowserRouter basename="/kts-calendar">
+    <AppCalendar />,
+    // </BrowserRouter>,
     document.getElementById('root') as HTMLElement
 );
