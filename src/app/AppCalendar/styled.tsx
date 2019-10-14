@@ -6,15 +6,15 @@ export const AppLayout = styled.div`
     height: 100vh;
     display: grid;
     grid-template-rows: 4.8rem 1fr;
-    grid-template-columns: 25rem 1fr;
-    grid-template-areas: 'filter app-header' 'filter calendar';
+    /* grid-template-columns: 25rem 1fr; */
+    grid-template-areas: 'app-header' 'calendar';
 `;
 
 export const HeaderArea = styled.div`
     grid-area: app-header;
     position: relative;
     display: grid;
-    grid-template-columns: 9rem 9rem 9rem 1fr;
+    grid-template-columns: repeat(3, 9rem) 1fr repeat(3, 9rem);
     text-align: center;
 `;
 export const FilterArea = styled.div`

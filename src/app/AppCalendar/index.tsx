@@ -9,7 +9,7 @@ import moment from 'moment';
 import {
     AppLayout,
     HeaderArea,
-    FilterArea,
+    // FilterArea,
     CalendarArea,
     NavBtn
 } from './styled';
@@ -128,7 +128,7 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
         // };
         return (
             <AppLayout>
-                <FilterArea>Filters</FilterArea>
+                {/* <FilterArea>Filters</FilterArea> */}
                 <HeaderArea>
                     <NavBtn>
                         <div onClick={this.onPrevious}>previous</div>
@@ -139,16 +139,8 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
                     <NavBtn>
                         <div onClick={this.onNext}>next</div>
                     </NavBtn>
-                    <div
-                        style={{
-                            display: 'grid',
-                            textAlign: 'center',
-                            gridTemplateColumns: ' 3fr repeat(3, 1fr)'
-                        }}
-                    >
-                        <NavBtn>{date.toLocaleDateString()}</NavBtn>
-                        {['month', 'week', 'day'].map(this.renderViewButton)}
-                    </div>
+                    <NavBtn>{date.toLocaleDateString()}</NavBtn>
+                    {['month', 'week', 'day'].map(this.renderViewButton)}
                 </HeaderArea>
                 <CalendarArea>
                     {/* <SnapshotSwipper {...snapshotSwipperProps}> */}
