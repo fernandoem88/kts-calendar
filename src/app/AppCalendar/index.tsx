@@ -35,14 +35,14 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
             date: tomorrow
         },
         {
-            id: 'yesterday',
+            id: 'yesterday-1',
             startTime: { hh: 9, mm: 30 },
             endTime: { hh: 13, mm: 20 },
-            title: 'yesterday event',
+            title: 'yesterday event 1',
             date: yesterday
         },
         {
-            id: 'yesterday-1',
+            id: 'yesterday-2',
             startTime: { hh: 12, mm: 30 },
             endTime: { hh: 14, mm: 50 },
             title: 'yesterday event 2',
@@ -63,31 +63,31 @@ export default class AppCalendar extends React.Component<any, CalendarState> {
             date: now
         },
         {
-            id: '3',
+            id: '6',
             startTime: { hh: 14, mm: 45 },
             endTime: { hh: 16, mm: 0 },
-            title: 'event 3',
+            title: 'event 6',
             date: now
         },
         {
-            id: '4',
+            id: 'long event label',
             startTime: { hh: 13, mm: 45 },
             endTime: { hh: 15, mm: 0 },
             title: 'long event label',
             date: now
         },
         {
-            id: '5',
+            id: '4',
             startTime: { hh: 13, mm: 45 },
             endTime: { hh: 14, mm: 40 },
-            title: 'event 5',
+            title: 'event 4',
             date: now
         },
         {
-            id: '6',
+            id: '3',
             startTime: { hh: 11, mm: 30 },
             endTime: { hh: 15, mm: 30 },
-            title: 'event 6',
+            title: 'event 3',
             date: now
         },
         {
